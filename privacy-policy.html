@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidad - Modia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .highlight-box h2 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        
+        .highlight-box ul {
+            list-style: none;
+        }
+        
+        .highlight-box li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .highlight-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+        
+        h2 {
+            font-size: 1.8em;
+            margin-top: 40px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        h3 {
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        
+        h4 {
+            font-size: 1.1em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        p {
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .toc ol {
+            list-style: none;
+            counter-reset: toc-counter;
+        }
+        
+        .toc li {
+            counter-increment: toc-counter;
+            padding: 8px 0;
+        }
+        
+        .toc li:before {
+            content: counter(toc-counter) ". ";
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .toc a {
+            color: #333;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            color: #667eea;
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .section-icon {
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .contact-box {
+            background: #e7f3ff;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        
+        .contact-box h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        strong {
+            color: #1a1a1a;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Política de Privacidad - Modia</h1>
+        <p class="subtitle"><strong>Última actualización:</strong> Octubre 2025 | <strong>Versión:</strong> 1.0</p>
+        
+        <div class="highlight-box">
+            <p>En Modia estamos muy implicadas con nuestras usuarias y es por eso que hemos trabajado una política de privacidad con un lenguaje llano, sincero y comprensible.</p>
+            <p>En resumen, Modia te permite probarte ropa virtualmente y online usando tu foto. Para tu tranquilidad:</p>
+            <ul>
+                <li><strong>Tus fotos son tuyas:</strong> Solo las usamos para crear tu look virtual</li>
+                <li><strong>No las compartimos:</strong> No vendemos ni compartimos tus fotos con nadie</li>
+                <li><strong>Tú tienes el control:</strong> Puedes eliminar tus datos cuando quieras</li>
+                <li><strong>Transparencia total:</strong> Te explicamos todo lo que hacemos y porqué lo hacemos</li>
+            </ul>
+        </div>
+
+        <div class="toc">
+            <h3>📖 Índice</h3>
+            <ol>
+                <li><a href="#seccion1">¿Qué información recopilamos?</a></li>
+                <li><a href="#seccion2">¿Cómo usamos tu información?</a></li>
+                <li><a href="#seccion3">¿Con quién compartimos tu información?</a></li>
+                <li><a href="#seccion4">¿Cómo protegemos tu información?</a></li>
+                <li><a href="#seccion5">Tus derechos</a></li>
+                <li><a href="#seccion6">Cookies y tecnologías similares</a></li>
+                <li><a href="#seccion7">Privacidad de menores</a></li>
+                <li><a href="#seccion8">Cambios en esta política</a></li>
+                <li><a href="#seccion9">Contacto</a></li>
+            </ol>
+        </div>
+
+        <h2 id="seccion1"><span class="section-icon">📋</span>1. ¿Qué información recopilamos?</h2>
+        
+        <h3>📸 Información que tú nos das</h3>
+        
+        <h4>Fotos y imágenes</h4>
+        <p>Cuando subes una foto para probarte ropa virtualmente, procesamos:</p>
+        <ul>
+            <li>La imagen que subes</li>
+            <li>Los ajustes que haces (zoom, recorte, etc.)</li>
+        </ul>
+        <p><strong>¿Por cuánto tiempo?</strong> Las guardamos tanto en tu dispositivo como en nuestros servidores (Unión Europea) durante máximo 1 año para que puedas acceder a tu historial desde cualquier lugar. Puedes solicitar su eliminación en cualquier momento.</p>
+
+        <h4>Historial de looks creados</h4>
+        <p>Cuando creas un look virtual probándote una prenda, guardamos:</p>
+        <ul>
+            <li>Tu foto original que usaste</li>
+            <li>La imagen de la prenda que probaste</li>
+            <li>El resultado generado (tu look virtual)</li>
+            <li>La dirección web (URL) de donde viene la prenda</li>
+            <li>El nombre de la prenda o título de la página</li>
+            <li>Fecha y hora de creación</li>
+        </ul>
+        <p><strong>¿Por qué?</strong> Para que puedas acceder a tu historial de looks, volver a ver tus creaciones, y regresar a la tienda para comprar las prendas que te gustaron.</p>
+
+        <h3>📱 Información que recopilamos automáticamente</h3>
+        
+        <h4>Datos del dispositivo</h4>
+        <ul>
+            <li>Modelo de tu teléfono/tablet</li>
+            <li>Sistema operativo (Android/iOS) y versión</li>
+            <li>Identificador anónimo del dispositivo (usado únicamente para análisis técnicos, sin vincular a tu identidad)</li>
+        </ul>
+        <p><strong>¿Por qué?</strong> Para asegurar que la app funcione bien en tu dispositivo y mejorar el rendimiento.</p>
+
+        <h4>Datos de uso</h4>
+        <ul>
+            <li>Funciones que usas más</li>
+            <li>Tiempo que pasas en la app</li>
+            <li>Errores o fallos técnicos</li>
+            <li>Número de looks creados</li>
+        </ul>
+        <p><strong>¿Por qué?</strong> Para mejorar la experiencia y arreglar problemas.</p>
+
+        <h2 id="seccion2"><span class="section-icon">🎯</span>2. ¿Cómo usamos tu información?</h2>
+        
+        <p>Usamos tus datos únicamente para:</p>
+
+        <h3>🎨 Funcionalidad principal</h3>
+        <ul>
+            <li><strong>Crear tus looks virtuales:</strong> Procesamos tu foto con inteligencia artificial</li>
+            <li><strong>Guardar tu historial:</strong> Para que accedas rápidamente a tus creaciones</li>
+            <li><strong>Navegación web:</strong> Para mostrarte tiendas de ropa</li>
+        </ul>
+
+        <h3>🔧 Mejorar el servicio</h3>
+        <ul>
+            <li>Corregir errores técnicos</li>
+            <li>Optimizar el rendimiento</li>
+            <li>Desarrollar nuevas funciones</li>
+        </ul>
+
+        <h3>📊 Análisis y estadísticas</h3>
+        <ul>
+            <li>Entender cómo se usa la app (de forma anónima)</li>
+            <li>Mejorar la experiencia de usuario</li>
+        </ul>
+
+        <h3>💰 Monetización</h3>
+        <ul>
+            <li>Mostrar anuncios genéricos (no personalizados)</li>
+            <li>Procesar compras de funciones premium (si aplica)</li>
+        </ul>
+
+        <div class="info-box">
+            <p><strong>Base legal (GDPR):</strong></p>
+            <ul>
+                <li><strong>Consentimiento:</strong> Para procesamiento de fotos con IA</li>
+                <li><strong>Ejecución de contrato:</strong> Para proporcionar el servicio</li>
+                <li><strong>Interés legítimo:</strong> Para mejoras técnicas y análisis anónimos</li>
+            </ul>
+        </div>
+
+        <h2 id="seccion3"><span class="section-icon">🤝</span>3. ¿Con quién compartimos tu información?</h2>
+        
+        <h3>🤝 Proveedores de servicios que usamos</h3>
+
+        <h4>FashnAI (Procesamiento de imágenes IA)</h4>
+        <ul>
+            <li><strong>Qué compartimos:</strong> Tu foto para crear el look virtual mediante API</li>
+            <li><strong>Retención:</strong> Eliminan automáticamente todas las fotos después de 72 horas</li>
+            <li><strong>Logs:</strong> Solo guardan registros anonimizados para análisis (sin tus datos personales)</li>
+            <li><strong>Seguridad:</strong> Conexión encriptada (HTTPS/TLS)</li>
+            <li><strong>Política:</strong> Las fotos no se retienen más allá de 72 horas para garantizar privacidad</li>
+        </ul>
+
+        <h4>Google AdMob (Publicidad)</h4>
+        <ul>
+            <li><strong>Qué compartimos:</strong> Datos de rendimiento de anuncios</li>
+            <li><strong>Propósito:</strong> Mostrar anuncios genéricos (no personalizados por ahora)</li>
+            <li><strong>Política:</strong> <a href="https://policies.google.com/privacy" target="_blank">https://policies.google.com/privacy</a></li>
+        </ul>
+
+        <h4>Google Firebase (Infraestructura, almacenamiento y análisis)</h4>
+        <ul>
+            <li><strong>Qué compartimos:</strong> Datos de uso anónimos, eventos de la app, información de crashes</li>
+            <li><strong>Propósito:</strong> Alojar tus fotos de forma segura, mejorar rendimiento, detectar errores, entender uso de la app</li>
+            <li><strong>Ubicación:</strong> Servidores en la Unión Europea</li>
+            <li><strong>Retención:</strong> Datos agregados y anónimos</li>
+            <li><strong>Analytics:</strong> Usamos Firebase Analytics integrado para análisis anónimos</li>
+            <li><strong>Política:</strong> <a href="https://firebase.google.com/support/privacy" target="_blank">https://firebase.google.com/support/privacy</a></li>
+        </ul>
+
+        <div class="warning-box">
+            <h4>🚫 Lo que NUNCA hacemos</h4>
+            <ul>
+                <li>❌ <strong>NO vendemos</strong> tus fotos o datos personales</li>
+                <li>❌ <strong>NO compartimos</strong> tus fotos en redes sociales</li>
+                <li>❌ <strong>NO usamos</strong> tus fotos para entrenar IA</li>
+                <li>❌ <strong>NO enviamos</strong> spam ni correos no solicitados</li>
+            </ul>
+        </div>
+
+        <h2 id="seccion4"><span class="section-icon">🔐</span>4. ¿Cómo protegemos tu información?</h2>
+        
+        <h3>🔐 Medidas de seguridad</h3>
+
+        <h4>Encriptación</h4>
+        <ul>
+            <li><strong>En tránsito:</strong> Todas las comunicaciones usan HTTPS/TLS</li>
+            <li><strong>En reposo:</strong> Las fotos se guardan en el almacenamiento privado de la app en tu dispositivo</li>
+        </ul>
+
+        <h4>Almacenamiento</h4>
+        <ul>
+            <li><strong>Dispositivo local:</strong> Copia de tus fotos y looks guardados en tu dispositivo</li>
+            <li><strong>Servidores seguros:</strong> Firebase en la Unión Europea</li>
+            <li><strong>Procesamiento IA:</strong> Tus fotos pasan por FashnAI solo durante el procesamiento (máximo 72 horas)</li>
+        </ul>
+
+        <h4>Acceso limitado</h4>
+        <ul>
+            <li>Solo personal autorizado puede acceder a sistemas</li>
+            <li>Revisiones de seguridad periódicas</li>
+        </ul>
+
+        <h4>Retención de datos</h4>
+        <ul>
+            <li><strong>Fotos en dispositivo y servidor:</strong> Máximo 1 año para acceso a tu historial (puedes solicitar eliminación)</li>
+            <li><strong>Fotos en FashnAI:</strong> Máximo 72 horas (se eliminan automáticamente)</li>
+            <li><strong>Historial de looks:</strong> Hasta 1 año o hasta que solicites eliminación</li>
+            <li><strong>Datos de análisis:</strong> Agregados y anónimos indefinidamente</li>
+            <li><strong>Cuentas de usuario:</strong> Por el momento no hay sistema de cuentas (puede implementarse en el futuro)</li>
+        </ul>
+
+        <h2 id="seccion5"><span class="section-icon">⚖️</span>5. Tus derechos</h2>
+        
+        <h3>🌍 Si estás en Europa (GDPR)</h3>
+        <p>Tienes derecho a:</p>
+
+        <h4>📂 Acceso</h4>
+        <p>Solicitar una copia de todos tus datos personales.</p>
+
+        <h4>✏️ Rectificación</h4>
+        <p>Corregir datos incorrectos o incompletos.</p>
+
+        <h4>🗑️ Eliminación</h4>
+        <p>Borrar tus datos ("derecho al olvido").<br>
+        <strong>Cómo:</strong> Envía un email a modia.developement@gmail.com solicitando la eliminación</p>
+
+        <h4>📦 Portabilidad</h4>
+        <p>Recibir tus datos en formato legible por máquina (JSON/CSV).</p>
+
+        <h4>✋ Oposición</h4>
+        <p>Oponerte al procesamiento de tus datos para ciertos fines.</p>
+
+        <h4>⏸️ Limitación</h4>
+        <p>Limitar cómo procesamos tus datos en ciertas circunstancias.</p>
+
+        <h4>🤖 No al procesamiento automatizado</h4>
+        <p>No estar sujeto a decisiones basadas únicamente en IA.</p>
+
+        <h4>🔄 Retirar consentimiento</h4>
+        <p>Retirar tu consentimiento en cualquier momento (sin afectar legalidad previa).</p>
+
+        <h3>🌎 Otros países</h3>
+        <p>Aunque tengas menos derechos legales, <strong>respetamos los mismos principios</strong> para todos los usuarios globalmente.</p>
+
+        <div class="contact-box">
+            <h3>📮 Cómo ejercer tus derechos</h3>
+            <p><strong>Email:</strong> modia.developement@gmail.com<br>
+            <strong>Plazo de respuesta:</strong> Dentro de 30 días<br>
+            <strong>Sin costo:</strong> Gratuito (salvo solicitudes excesivas)</p>
+            <p>Si no estás satisfecho con nuestra respuesta, puedes <strong>presentar una queja</strong> ante tu autoridad de protección de datos local.</p>
+        </div>
+
+        <h2 id="seccion6"><span class="section-icon">🍪</span>6. Cookies y tecnologías similares</h2>
+        
+        <h3>🍪 ¿Qué son las cookies?</h3>
+        <p>Son pequeños archivos que guardan información en tu dispositivo.</p>
+
+        <h3>Cookies que usamos:</h3>
+
+        <h4>Esenciales (Siempre activas)</h4>
+        <ul>
+            <li>Mantener tu sesión activa</li>
+            <li>Recordar configuración básica</li>
+        </ul>
+
+        <h4>Análisis (Opcionales)</h4>
+        <ul>
+            <li>Entender cómo usas la app</li>
+            <li>Medir rendimiento</li>
+        </ul>
+
+        <h4>Publicidad (Opcionales)</h4>
+        <ul>
+            <li>Mostrar anuncios relevantes</li>
+            <li>Medir efectividad de anuncios</li>
+        </ul>
+
+        <p><strong>Puedes gestionar cookies</strong> en: Configuración → Privacidad → Gestionar cookies</p>
+
+        <h2 id="seccion7"><span class="section-icon">👶</span>7. Privacidad de menores</h2>
+        
+        <h3>👶 Menores de 13 años</h3>
+        <p>Modia <strong>NO está dirigida a menores de 13 años</strong>.</p>
+        <p>Si descubrimos que un menor de 13 años nos ha proporcionado información:</p>
+        <ol>
+            <li>Eliminaremos sus datos inmediatamente</li>
+            <li>Bloquearemos futuro acceso</li>
+        </ol>
+        <p><strong>Padres/tutores:</strong> Si crees que tu hijo menor nos ha dado información, contáctanos a modia.developement@gmail.com</p>
+
+        <h3>👦 Menores entre 13-16 años (Europa)</h3>
+        <p>Si tienes entre 13-16 años en Europa, <strong>necesitas permiso de tus padres/tutores</strong> para usar Modia.</p>
+
+        <h2 id="seccion8"><span class="section-icon">🔄</span>8. Cambios en esta política</h2>
+        
+        <h3>🔄 ¿Cómo te avisamos?</h3>
+        <p>Si hacemos cambios importantes en esta política:</p>
+        <ul>
+            <li>✉️ <strong>Notificación en la app:</strong> Banner/modal visible</li>
+            <li>📧 <strong>Email:</strong> Si tenemos tu correo <em>[si aplica]</em></li>
+            <li>🆕 <strong>Fecha de actualización:</strong> Siempre visible arriba</li>
+        </ul>
+        <p><strong>Cambios menores</strong> (correcciones, aclaraciones) se publican sin notificación activa.</p>
+        <p><strong>Recomendamos</strong> revisar esta política periódicamente.</p>
+
+        <h2 id="seccion9"><span class="section-icon">📧</span>9. Contacto</h2>
+        
+        <div class="contact-box">
+            <h3>📧 ¿Preguntas sobre privacidad?</h3>
+            <p><strong>Email de soporte:</strong> modia.developement@gmail.com<br>
+            <strong>Responsable de datos:</strong> Modia Development<br>
+            <strong>Ubicación de servidores:</strong> Unión Europea (Firebase)</p>
+            <p><strong>Tiempo de respuesta:</strong> Normalmente dentro de 48-72 horas.</p>
+        </div>
+
+        <h3>🇪🇺 Autoridad de supervisión (Europa)</h3>
+        <p>Si tienes una queja sobre cómo manejamos tus datos, puedes contactar a tu autoridad local de protección de datos:</p>
+        <ul>
+            <li><strong>España:</strong> Agencia Española de Protección de Datos (AEPD) - <a href="https://www.aepd.es" target="_blank">https://www.aepd.es</a></li>
+            <li><strong>Otros países UE:</strong> <a href="https://edpb.europa.eu/about-edpb/board/members" target="_blank">Listado completo</a></li>
+        </ul>
+
+        <h2>📜 Información legal adicional</h2>
+        <p><strong>Titular de la aplicación:</strong> Modia Development<br>
+        <strong>Email de contacto:</strong> modia.developement@gmail.com<br>
+        <strong>Infraestructura:</strong> Firebase (Google Cloud)<br>
+        <strong>Ubicación de servidores:</strong> Unión Europea</p>
+
+        <div class="success-box">
+            <h3>✅ Certificado de conformidad</h3>
+            <p>Esta política de privacidad cumple con:</p>
+            <ul>
+                <li>✅ Reglamento General de Protección de Datos (GDPR - UE)</li>
+                <li>✅ Políticas de Google Play Store</li>
+                <li>✅ Políticas de Apple App Store</li>
+                <li>✅ Ley de Privacidad del Consumidor de California (CCPA) <em>[Si aplica]</em></li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><strong>¿Necesitas ayuda?</strong> Estamos aquí para resolver tus dudas sobre privacidad.</p>
+            <p><strong>Gracias por confiar en Modia</strong> 💜</p>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid #e9ecef;">
+            <p style="font-size: 0.85em;">© 2025 Modia. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
+
