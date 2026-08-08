@@ -278,17 +278,15 @@ Form: Nombre, Apellidos, Email → on submit:
 4. Swaps the form out for a confirmation state (`#formState` → `#successState`)
    either way.
 
-#### Formspree setup (required before this goes live)
+#### Formspree setup
 
-`FORMSPREE_ENDPOINT` in `proximamente.html` currently points at the placeholder
-`https://formspree.io/f/TU_FORM_ID` — submissions will silently fall back to
-mailto until this is replaced. To activate it:
-1. Create a free account at formspree.io (no card needed; free tier = 50
-   submissions/month, upgrade later if volume grows).
-2. Create a new form, copy its endpoint URL (`https://formspree.io/f/xxxxxxx`).
-3. Paste it into the `FORMSPREE_ENDPOINT` constant in `proximamente.html`.
-4. In the Formspree dashboard, confirm the destination email (petitstudio@gmail.com)
-   so notification emails aren't blocked.
+`FORMSPREE_ENDPOINT` in `proximamente.html` is live: `https://formspree.io/f/myegkbqq`
+(Alba's real form — configured). Submissions land in that form's Formspree
+dashboard as structured rows and trigger Formspree's notification email.
+If it's ever replaced (new account, new form), just swap the URL in the
+`FORMSPREE_ENDPOINT` constant — no other code changes needed. Worth
+double-checking in the Formspree dashboard that the destination email
+(petitstudio@gmail.com) is confirmed, or notification emails get blocked.
 
 ### Linked buttons → producto values
 
