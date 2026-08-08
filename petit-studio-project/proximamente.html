@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Próximamente · Petit Studio</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; overflow-x:hidden; max-width:100%; }
+  body{
+    background:#050508;
+    color:rgba(255,255,255,.9);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    width:100%;
+    max-width:100vw;
+    min-height:100vh;
+  }
+  .material-symbols-outlined{ font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; }
+
+  .ambient-bg{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; }
+  .glow-accent{ position:absolute; border-radius:50%; filter:blur(120px); mix-blend-mode:screen; }
+  .glow-1{ width:110vw; height:80vh; top:-18vh; left:50%; margin-left:-55vw;
+           background:radial-gradient(circle at 50% 50%, rgba(124,92,196,.55) 0%, rgba(88,64,150,.28) 45%, transparent 72%); }
+  .glow-2{ width:70vw; height:70vh; bottom:-15vh; right:-15vw;
+           background:radial-gradient(circle at 50% 50%, rgba(96,78,180,.34) 0%, transparent 70%); }
+  .grain{ position:fixed; inset:0; z-index:2; pointer-events:none; opacity:.028; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"); }
+
+  .glass-panel{ background:rgba(255,255,255,.05); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.1); }
+  .text-glow{ text-shadow:0 0 20px rgba(255,255,255,.3); }
+  .f-display{ font-family:'Epilogue',sans-serif; }
+  .f-body{ font-family:'Manrope',sans-serif; }
+
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1); }
+  .reveal.in{ opacity:1; transform:none; }
+
+  /* Corazón-relieve: el motivo insignia de Petit Studio, como firma visual de esta página */
+  .heart-mark{ width:140px; height:140px; position:relative; margin:0 auto; }
+  .heart-mark svg{ width:100%; height:100%; filter:drop-shadow(0 0 30px rgba(170,140,240,.45)); }
+  .heart-pulse{ animation:pulseHeart 3.2s ease-in-out infinite; }
+  @keyframes pulseHeart{ 0%,100%{ transform:scale(1); opacity:.92; } 50%{ transform:scale(1.045); opacity:1; } }
+
+  input.field{
+    width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
+    border-radius:14px; padding:14px 16px; color:#fff; font-family:'Manrope',sans-serif; font-size:.95rem;
+    transition:border-color .25s, background .25s;
+  }
+  input.field::placeholder{ color:rgba(255,255,255,.38); }
+  input.field:focus{ outline:none; border-color:rgba(190,160,250,.65); background:rgba(255,255,255,.09); }
+
+  .btn-primary{
+    background:#fff; color:#000; font-family:'Manrope',sans-serif; font-weight:700; font-size:.72rem;
+    text-transform:uppercase; letter-spacing:.15em; padding:15px 0; border-radius:9999px; width:100%;
+    box-shadow:0 0 34px rgba(255,255,255,.22); transition:transform .25s;
+  }
+  .btn-primary:hover{ transform:scale(1.02); }
+  .btn-primary:active{ transform:scale(.98); }
+
+  #successState{ display:none; }
+</style>
+</head>
+<body>
+
+<div class="ambient-bg">
+  <div class="glow-accent glow-1"></div>
+  <div class="glow-accent glow-2"></div>
+</div>
+<div class="grain"></div>
+
+<main class="min-h-screen flex flex-col items-center justify-center px-5 py-16 md:py-24">
+  <div class="w-full max-w-lg mx-auto text-center">
+
+    <a href="petit_studio_v3.html" class="reveal in inline-flex items-center gap-2 f-body text-xs text-white/50 hover:text-white/80 transition-colors mb-10">
+      <span class="material-symbols-outlined text-base">arrow_back</span> Volver a Petit Studio
+    </a>
+
+    <!-- ESTADO: FORMULARIO -->
+    <div id="formState">
+      <div class="reveal heart-mark heart-pulse" style="transition-delay:.05s">
+        <svg viewBox="0 0 100 100" fill="none">
+          <path d="M50 86C50 86 12 62 12 35C12 20 23 11 36 11C43 11 48 15 50 20C52 15 57 11 64 11C77 11 88 20 88 35C88 62 50 86 50 86Z"
+                stroke="rgba(255,255,255,.85)" stroke-width="2.2" fill="rgba(190,160,250,.12)"/>
+        </svg>
+      </div>
+
+      <p class="reveal f-body text-[11px] uppercase tracking-[.22em] text-white/45 mt-8 mb-4" style="transition-delay:.1s">Próximamente</p>
+
+      <h1 class="reveal f-display font-light text-[1.85rem] md:text-4xl text-white leading-tight tracking-tight mb-5 text-glow" style="transition-delay:.15s">
+        Esto también lo estamos<br/>preparando con mimo
+      </h1>
+
+      <p class="reveal f-body text-white/60 leading-relaxed mb-1" style="transition-delay:.2s">
+        Te interesa: <span id="productLabel" class="text-white/90 font-medium">Esta opción</span>.
+        Nos encanta que te encante — estamos terminando de darle forma para que llegue
+        con el mismo cuidado que el resto de Petit Studio.
+      </p>
+      <p class="reveal f-body text-white/60 leading-relaxed mb-10" style="transition-delay:.25s">
+        Déjanos tus datos y serás de las primeras familias en saberlo en cuanto esté disponible.
+      </p>
+
+      <form id="waitlistForm" class="reveal text-left space-y-3.5" style="transition-delay:.3s">
+        <input class="field" type="text" id="nombre" placeholder="Nombre" required/>
+        <input class="field" type="text" id="apellidos" placeholder="Apellidos" required/>
+        <input class="field" type="email" id="email" placeholder="Correo electrónico" required/>
+        <button type="submit" class="btn-primary mt-2">Avisadme cuando esté disponible</button>
+        <p class="f-body text-white/35 text-xs text-center leading-relaxed pt-1">
+          Al enviar se abrirá tu app de correo con el mensaje ya preparado para nosotros.
+          Si prefieres, escríbenos directamente a
+          <a href="mailto:petitstudio@gmail.com" class="text-white/55 hover:text-white/80 underline underline-offset-2">petitstudio@gmail.com</a>.
+        </p>
+      </form>
+    </div>
+
+    <!-- ESTADO: CONFIRMACIÓN -->
+    <div id="successState">
+      <div class="heart-mark heart-pulse">
+        <svg viewBox="0 0 100 100" fill="none">
+          <path d="M50 86C50 86 12 62 12 35C12 20 23 11 36 11C43 11 48 15 50 20C52 15 57 11 64 11C77 11 88 20 88 35C88 62 50 86 50 86Z"
+                stroke="rgba(255,255,255,.85)" stroke-width="2.2" fill="rgba(190,160,250,.22)"/>
+        </svg>
+      </div>
+      <p class="f-body text-[11px] uppercase tracking-[.22em] text-white/45 mt-8 mb-4">Ya estás en la lista</p>
+      <h1 class="f-display font-light text-[1.85rem] md:text-4xl text-white leading-tight tracking-tight mb-5 text-glow">
+        Gracias, <span id="successName">familia</span>
+      </h1>
+      <p class="f-body text-white/60 leading-relaxed max-w-sm mx-auto">
+        Te escribiremos a <span id="successEmail" class="text-white/85"></span> en cuanto
+        esté disponible: <span id="successProduct" class="text-white/85">esta opción</span>.
+        Gracias por tantísimo cariño mientras lo terminamos de coser.
+      </p>
+      <a href="petit_studio_v3.html" class="f-body text-xs uppercase tracking-[.15em] text-white/55 hover:text-white/85 transition-colors inline-block mt-10">
+        ← Volver a Petit Studio
+      </a>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// Revelado suave al cargar
+document.querySelectorAll('.reveal').forEach((el,i)=>{ setTimeout(()=>el.classList.add('in'), 80 + i*70); });
+
+// Producto según el botón de origen
+const PRODUCTS = {
+  'regalo-digital': 'Regalo digital',
+  'album-poster':   'Fotos',
+  'imanes':         'Imanes',
+  'regalo-impreso': 'Regalo impreso'
+};
+const params = new URLSearchParams(window.location.search);
+const productKey = params.get('producto') || '';
+const productLabel = PRODUCTS[productKey] || 'esta opción';
+document.getElementById('productLabel').textContent = productLabel;
+
+const form = document.getElementById('waitlistForm');
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+  const nombre = document.getElementById('nombre').value.trim();
+  const apellidos = document.getElementById('apellidos').value.trim();
+  const email = document.getElementById('email').value.trim();
+  if(!nombre || !apellidos || !email) return;
+
+  const now = new Date();
+  const fecha = now.toLocaleDateString('es-ES');
+  const hora = now.toLocaleTimeString('es-ES');
+
+  // Guarda un registro local (respaldo ligero en este navegador)
+  try{
+    const entry = { nombre, apellidos, email, producto: productKey, productLabel, fecha, hora };
+    const existing = JSON.parse(localStorage.getItem('petitstudio_interesados') || '[]');
+    existing.push(entry);
+    localStorage.setItem('petitstudio_interesados', JSON.stringify(existing));
+  }catch(err){}
+
+  // Abre el correo con los datos ya listos para enviar a petitstudio@gmail.com
+  const subject = encodeURIComponent('Interés en: ' + productLabel);
+  const body = encodeURIComponent(
+    'Producto de interés: ' + productLabel + '\n' +
+    'Nombre: ' + nombre + '\n' +
+    'Apellidos: ' + apellidos + '\n' +
+    'Email: ' + email + '\n' +
+    'Fecha: ' + fecha + ' ' + hora
+  );
+  window.location.href = 'mailto:petitstudio@gmail.com?subject=' + subject + '&body=' + body;
+
+  // Muestra confirmación en la página
+  document.getElementById('successName').textContent = nombre;
+  document.getElementById('successEmail').textContent = email;
+  document.getElementById('successProduct').textContent = productLabel;
+  document.getElementById('formState').style.display = 'none';
+  document.getElementById('successState').style.display = 'block';
+});
+</script>
+
+</body>
+</html>
