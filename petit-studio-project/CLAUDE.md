@@ -28,16 +28,24 @@ Deployed on Vercel (free tier), account `modia.developement@gmail.com`:
 ## Files
 
 ```
-petit_studio_v3.html   ← main site (single file, self-contained, offline-capable)
-proximamente.html      ← "coming soon" waitlist page for features not yet live
-pedido.html             ← order wizard: upload → styles → data/payment → confirmation (Phase 1, mocked)
+petit_studio_v3.html    ← main site (single file, self-contained, offline-capable)
+proximamente.html       ← "coming soon" waitlist page for features not yet live
+pedido.html             ← order wizard — GENERATED, do not edit (see Page 3)
+pedido.template.html    ← the wizard's real source; edit this one
+build_pedido.py         ← regenerates pedido.html from the template + catalog
 vercel.json             ← rewrite so "/" serves petit_studio_v3.html on Vercel
-CLAUDE.md              ← this file
+.vercelignore           ← keeps template/build script/CLAUDE.md out of the deploy
+CLAUDE.md               ← this file
 ```
 
-There is **no build step, no framework, no package.json**. Both pages are raw
-HTML + Tailwind (via CDN `<script>`) + vanilla JS in inline `<script>` tags.
-Open either file directly in a browser — nothing needs to be served or compiled.
+No framework and no package.json. Every page is raw HTML + Tailwind (via CDN
+`<script>`) + vanilla JS in inline `<script>` tags, and can be opened straight
+from disk in a browser.
+
+The one exception is `pedido.html`: it has a **build step**
+(`python3 build_pedido.py`) because its style catalog is generated from
+`petit_studio_v3.html` rather than maintained by hand. Edit
+`pedido.template.html`, then run the script. See Page 3 below.
 
 ⚠️ `petit_studio_v3.html` is ~7 MB because every photo is embedded inline as a
 base64 JPEG `data:` URI (no external image files, no `/assets` folder). This is
@@ -328,110 +336,172 @@ explicitly asks for one — start with the no-code options.
 
 ## Page 3: `pedido.html` — order wizard (Phase 1, in progress)
 
-Single-page, 4-step wizard for actually placing an order — this is what
-`petit_studio_v3.html`'s Basic (`?pack=basic`) and Flex (`?pack=flex`)
-"Seleccionar" buttons link to. Self-contained like the other pages (own
-copy of the design tokens), same dark/purple glass aesthetic, `.reveal`
-animation pattern, and a `stepper` UI showing progress (Fotos → Estilos →
-Datos y pago → Confirmación); clicking a completed step's dot jumps back.
-All state (`state` object near the bottom of the `<script>`) lives in
-memory for the session — nothing is persisted or sent anywhere yet.
+4-step wizard for placing an order — what the Basic (`?pack=basic`) and Flex
+(`?pack=flex`) "Seleccionar" buttons on `petit_studio_v3.html` link to.
+Steps: Fotos → Estilos → Datos → Listo. All state (`state` object in the
+`<script>`) lives in memory for the session; nothing is persisted or sent
+anywhere yet.
 
-**Phase 1 status: frontend-only, payment and generation are mocked.**
-See "Roadmap" below for what's still needed before this is a real backend.
+**Phase 1 status: frontend only. Payment and generation are mocked.**
+See "Roadmap" below for what's still needed.
+
+### ⚠️ `pedido.html` is GENERATED — never edit it directly
+
+```
+pedido.template.html  ← EDIT THIS (the real source, ~35 KB, readable)
+build_pedido.py       ← run this to regenerate
+pedido.html           ← OUTPUT, ~6 MB, git-tracked because Vercel serves it
+```
+
+`build_pedido.py` extracts the 43 catalog photos (category + alt + base64
+`src`) from `petit_studio_v3.html`'s `#estilos` gallery and injects them into
+the template's `__CATALOG_JSON__` placeholder. So the wizard and the main site
+always show pixel-identical images, and no photo is ever encoded twice.
+
+After **any** change to `pedido.template.html`, or to the `#estilos` gallery in
+`petit_studio_v3.html`, run:
+
+```
+python3 build_pedido.py
+```
+
+It sanity-checks that the number of extracted items matches the number of
+`gallery-item`s in the source and fails loudly if the regex has drifted from
+the markup.
+
+`.vercelignore` keeps the template, the build script and this file out of the
+deployment — only the generated `pedido.html` ships.
+
+### Layout & responsive
+
+Mobile-first, verified at 375 / 768 / 1280 px with no horizontal overflow.
+**Critical layout lives in the page's own `<style>` block, not in Tailwind
+classes** (`.wrap`, `.thumb-grid`, `.style-grid`, `.chips-row`, `.stepper`,
+`.btn`…). Tailwind arrives over CDN, and a slow or blocked CDN would otherwise
+leave the page with no grid and browser-default button styling — which also
+silently broke colour contrast the first time round. Tailwind is still loaded
+and used for spacing/typography utilities; just don't put structural layout or
+anything contrast-critical in a Tailwind-only class.
+
+Grid columns: thumbnails 3 / 4 / 5, style cards 2 / 3 / 4 (mobile / ≥640 / ≥1024).
+
+### Chrome that stays on screen
+
+Three persistent regions, all sticky — the client never has to scroll to know
+where they stand:
+
+| Region | Where | Contains |
+|---|---|---|
+| `.app-header` | sticky top | back arrow (icon only — no "Petit Studio" wordmark) + step dots |
+| `#contextBar` | sticky, directly under the header (its `top` is set from the header's measured height on load/resize) | steps 1–2 only: the live counter |
+| `.action-bar` | sticky bottom, `env(safe-area-inset-bottom)`-aware | Atrás (ghost, left) + primary CTA (right; full-width on mobile) |
+
+The **counter is deliberately at the top, not the bottom** — Alba's explicit
+requirement: while picking photos or styles it must be visible without
+scrolling to the end. Step 1 shows the quality meter, step 2 shows
+"`X` de `N` elegidas · te quedan `Y`" plus a progress bar. Every
+selection/removal *also* fires a toast (`toast()`, `#toastRegion`,
+`role="status"`) with the running total, so the feedback is immediate.
 
 ### Step 1 — Fotos
 
-Drag-and-drop/file-picker upload (`accept="image/*" multiple`), 3–10
-photos, read client-side via `FileReader` as data URLs (nothing uploaded
-anywhere in Phase 1). A "password-strength"-style meter (`METER_TIERS` in
-the script) reacts to photo count with a label + emoji + color + progress
-bar + tip, in 4 tiers: 0–2 (blocked, red), 3–4 ("Floja", orange), 5–7
-("Media", amber), 8–10 ("¡Excelente!", green). "Continuar" is disabled
-below 3 photos.
+Drag-and-drop or file picker, 3–10 photos, read client-side as data URLs
+(nothing is uploaded in Phase 1). Quality meter (`TIERS`) reacts to photo
+count with label + emoji + colour + bar + tip:
+
+| Fotos | Etiqueta | Color |
+|---|---|---|
+| 0–2 | "Añade 3 fotos para empezar" 🌱 | rojo |
+| 3–4 | "Suficiente para empezar" 🙂 | naranja |
+| 5–7 | "Muy buen material" 😊 | ámbar |
+| 8–10 | "Perfecto, así da gusto" 🤩 | verde |
+
+Colour is never the only signal (label + emoji + text carry it too) — WCAG 1.4.1.
 
 ### Step 2 — Estilos
 
-Reuses the **same catalog images** already embedded in
-`petit_studio_v3.html`'s `#estilos` gallery (extracted via `re.sub` at
-build time — see "Regenerating the catalog" below), rendered as
-selectable cards (click to toggle, checkmark badge + purple ring when
-selected) filtered by the same category chips as the main site.
+Catalog cards are real `<button aria-pressed>` elements (keyboard-operable,
+announced as pressed/not pressed). Category chips are `<button aria-pressed>`
+too.
 
-Pack limits (`PACKS` object in the script):
-- **Basic** (`singleCategory: true`, `maxPhotos: 5`): the *first* style
-  picked locks `state.lockedCategory` — trying to select from a different
-  category shows an inline message instead of allowing it, until every
-  selection is removed.
-- **Flex** (`singleCategory: false`, `maxPhotos: 15`): any mix of
-  categories, up to 15 total.
+Pack limits (`PACKS`):
+- **Basic** — `singleCategory: true`, max 5. The first pick locks
+  `state.lockedCategory`; other categories dim (`.locked`) and picking from
+  them shows a toast explaining why, instead of silently doing nothing.
+- **Flex** — max 15, any mix of categories.
 
-A sticky bar at the bottom always shows "`X` de `N` seleccionadas" plus
-how many remain — this is the friction-reduction Alba asked for so the
-client always knows where they stand while picking.
+**Selecting does NOT re-render the grid.** `toggleSelect()` updates only the
+clicked card's `aria-pressed`, then `refreshLockedCards()` + the counter.
+Rebuilding the grid (as the first version did) threw away keyboard focus and
+scroll position on every click — don't reintroduce that.
 
 ### Step 3 — Datos y pago
 
-Nombre, apellidos, email, and a **required, unchecked-by-default**
-consent checkbox using inclusive guardian language ("madre, padre o
-tutor/a legal") — do not reword this into gendered "padre/madre" only,
-and do not pre-check it (real legal requirement, not just UX polish,
-since this concerns photos of a minor). An order summary card (pack,
-price, photos/styles count) is shown above the form so the client sees
-exactly what they're paying for before committing.
+**Floating labels** (`.field-wrap` + `.field:not(:placeholder-shown) + label`):
+the input's `placeholder` is a single space and the real `<label>` shrinks up
+out of the way on focus/fill. Placeholder-as-label loses the label the moment
+you type — that was a real bug here, don't go back to it.
 
-**Payment is simulated** (`orderForm` submit handler): a 1.2s fake
-"Procesando pago…" delay, then straight to step 4. The code has a `TODO
-Fase 2` comment marking exactly where this needs to become a real Stripe
-Checkout redirect.
+Inline validation: `aria-invalid` + `hidden` error nodes wired via
+`aria-describedby`, first invalid field gets focus, errors clear as the user
+types. Consent checkbox is **required and unchecked by default**, with
+inclusive wording ("madre, padre o tutor/a legal de la criatura") — do not
+reword to gendered-only, do not pre-check (legal requirement, photos of a
+minor).
+
+The CTA reads **"Pagar 9,90€" / "Pagar 14,90€"** — states the actual amount
+rather than a vague "Continuar", so nobody is surprised at the payment step.
+Payment itself is simulated (1.1s delay); the `TODO Fase 2` comment marks
+where the Stripe Checkout redirect goes.
 
 ### Step 4 — Confirmación
 
-Same heart-pulse SVG motif as `proximamente.html`, empathetic copy, and
-the 24–48h delivery promise (see Copy consistency rules — this is now a
-4th place that must stay in sync). Shows a mock order reference
-(`PS-<timestamp>`) — replace with a real order ID once there's a backend.
+Heart-pulse SVG, mock reference `PS-<timestamp>`, and the 24–48h promise (see
+Copy consistency rules — this is the 4th place it appears). The action bar is
+hidden here; the only action is "Volver a Petit Studio".
 
-### Regenerating the catalog
+### Accessibility — verified, keep it that way
 
-`pedido.html`'s `CATALOG` array (JSON embedded near the bottom of the
-`<script>` block) is generated from `petit_studio_v3.html`'s gallery
-items, not maintained by hand. If the gallery in `petit_studio_v3.html`
-changes (new/removed style photos), regenerate `pedido.html` with a
-script that: regex-extracts every `data-category` + `alt` + base64 `src`
-from `#estilos` gallery items, JSON-encodes them, and rewrites the
-`CATALOG = ...` line in `pedido.html` — do not hand-edit the JSON (same
-reasoning as the base64 rule above: too large to eyeball safely).
+Audited with **axe-core (WCAG 2.1 A + AA) across all four steps, including
+error and selection states: 0 violations.** Re-run after any change to the
+template (serve the folder, then drive it with Playwright + axe).
+
+What's load-bearing — don't undo:
+- `[hidden]{ display:none !important; }` — without it `.btn`/`.icon-btn`'s
+  `display` wins over the `hidden` attribute and "hidden" buttons stay in the
+  tab order. This was a real bug.
+- `:focus-visible` outline (3px, `#c4a6ff`) — never `outline:none` on inputs.
+- Primary CTA uses `aria-disabled` + an explanatory toast on click, **not**
+  `disabled` — a `disabled` button is unreachable by keyboard and tells a
+  screen-reader user nothing about what's missing.
+- All body text ≥ `rgba(255,255,255,.64)` on `#050508` (`.t-primary` /
+  `.t-secondary` / `.t-muted`). Below that, contrast fails AA.
+- Touch targets ≥ 44×44 (`.btn`, `.icon-btn`, `.chip`, `.thumb-remove`).
+  The `sr-only` file input is the one exception — its `<label>` is the target.
+- `role="status"` toast region, `role="progressbar"` + `aria-valuetext` on both
+  meters, `aria-current="step"` on the active step, heading focus on step
+  change, skip link, `prefers-reduced-motion` block.
 
 ### Roadmap (Phase 2+, not started — needs Alba's accounts/credentials)
 
-Discussed with Alba; do not build ahead of her go-ahead on each piece:
-1. **Storage + database**: uploaded photos and order data need to persist
-   (to survive reloads, support regeneration, and feed the "360 reference
-   grid" step below) — recommended: Supabase (Postgres + Storage + Auth,
-   generous free tier) or Firebase, needs Alba's account.
-2. **Real payment**: replace the mocked submit with a Stripe Checkout
-   session created by a serverless function (Vercel Functions, since the
-   site's already hosted there) — needs Alba's Stripe account.
-3. **Image generation**: send the uploaded photos + selected style prompts
-   to Google's Gemini API — (a) first build a "360 reference grid" collage
-   of the baby's face/angles to keep identity consistent across styles,
-   (b) then generate one image per selected style using that reference +
-   the style's prompt (prompt library lives outside this repo, see "Style
-   catalog context" below) — needs a Google AI API key.
-4. **Admin review dashboard**: a private, authenticated panel (not part of
-   the public site) listing orders, prompts sent, generation status, and
-   the generated images, with actions to approve or regenerate/replace
-   individual images. Notify Alba when a batch finishes generating.
-5. **Delivery email**: on approval, email the client a secure,
-   expiring download link (needs a transactional email service — Resend
-   or similar; Formspree is only wired up for `proximamente.html` leads,
-   not this). Given these are photos of a minor, favor short link
-   expiry + an automatic deletion policy after delivery over indefinite
-   retention.
-
-Don't implement any of these without checking in — each needs Alba to
-create/hand over real credentials for a third-party service first.
+Discussed with Alba; don't build ahead of her go-ahead on each piece:
+1. **Storage + database** — photos and orders need to persist (survive reloads,
+   allow regeneration, feed the 360 reference grid). Recommended: Supabase
+   (Postgres + Storage + Auth, generous free tier). Needs her account.
+2. **Real payment** — replace the mocked submit with a Stripe Checkout session
+   created by a Vercel serverless function. Needs her Stripe account.
+3. **Image generation** — send photos + style prompts to Google's Gemini API:
+   (a) build a "360 reference grid" of the baby's face/angles to keep identity
+   consistent across styles, (b) generate one image per selected style from
+   that reference + the style's prompt (prompt library lives outside this repo).
+   Needs a Google AI API key.
+4. **Admin review dashboard** — private, authenticated panel listing orders,
+   prompts sent, generation status and results, with approve / regenerate /
+   replace actions. Notify Alba when a batch finishes.
+5. **Delivery email** — on approval, email the client a secure expiring
+   download link (Resend or similar; Formspree is only wired to
+   `proximamente.html` leads). These are photos of a minor: prefer short link
+   expiry + automatic deletion after delivery over indefinite retention.
 
 ## Editing conventions used throughout this project
 

@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Crea los retratos de tu bebé · Petit Studio</title>
+<meta name="description" content="Sube unas fotos, elige los estilos que más te gusten y recibe los retratos de tu bebé en 24-48h."/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; overflow-x:hidden; }
+  body{
+    background:#050508;
+    color:rgba(255,255,255,.92);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    min-height:100vh;
+    min-height:100dvh;
+    font-family:'Manrope',system-ui,sans-serif;
+  }
+  .material-symbols-outlined{ font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24; }
+
+  /* ===== Accesibilidad base ===== */
+  .sr-only{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+  /* `hidden` debe ganar siempre: si no, .btn/.icon-btn fijan `display` y el
+     elemento sigue siendo enfocable con el teclado aunque no se vea. */
+  [hidden]{ display:none !important; }
+  /* Foco siempre visible y con contraste suficiente (WCAG 2.4.7 / 1.4.11) */
+  :focus-visible{
+    outline:3px solid #c4a6ff;
+    outline-offset:3px;
+    border-radius:6px;
+  }
+  .skip-link{
+    position:absolute; left:50%; transform:translateX(-50%) translateY(-200%);
+    top:8px; z-index:100; background:#fff; color:#000; padding:0 24px;
+    min-height:44px; display:inline-flex; align-items:center;
+    border-radius:999px; font-size:.85rem; font-weight:700; transition:transform .2s;
+  }
+  .skip-link:focus{ transform:translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{
+      animation-duration:.01ms !important; animation-iteration-count:1 !important;
+      transition-duration:.01ms !important; scroll-behavior:auto !important;
+    }
+  }
+
+  /* ===== Fondo ambiental ===== */
+  .ambient-bg{ position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden; }
+  .glow-accent{ position:absolute; border-radius:50%; filter:blur(120px); mix-blend-mode:screen; }
+  .glow-1{ width:110vw; height:80vh; top:-18vh; left:50%; margin-left:-55vw;
+           background:radial-gradient(circle at 50% 50%, rgba(124,92,196,.5) 0%, rgba(88,64,150,.26) 45%, transparent 72%); }
+  .glow-2{ width:70vw; height:70vh; bottom:-15vh; right:-15vw;
+           background:radial-gradient(circle at 50% 50%, rgba(96,78,180,.3) 0%, transparent 70%); }
+
+  .glass{ background:rgba(255,255,255,.05); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.12); }
+  .f-display{ font-family:'Epilogue',sans-serif; }
+  .text-glow{ text-shadow:0 0 20px rgba(255,255,255,.3); }
+
+  /* Escala de texto con contraste AA garantizado sobre #050508
+     (nunca por debajo de rgba(255,255,255,.62) en texto pequeño) */
+  .t-primary{ color:rgba(255,255,255,.95); }
+  .t-secondary{ color:rgba(255,255,255,.78); }
+  .t-muted{ color:rgba(255,255,255,.64); }
+
+  /* ===== Cabecera ===== */
+  .app-header{
+    position:sticky; top:0; z-index:40;
+    background:rgba(5,5,8,.88); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+    padding-top:env(safe-area-inset-top);
+  }
+  .icon-btn{
+    width:44px; height:44px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+    color:rgba(255,255,255,.8); background:transparent; border:none; cursor:pointer; transition:background .2s, color .2s;
+    flex-shrink:0;
+  }
+  .icon-btn:hover{ background:rgba(255,255,255,.09); color:#fff; }
+
+  /* ===== Stepper ===== */
+  .stepper{ display:flex; align-items:center; gap:5px; list-style:none; margin:0; padding:0; }
+  .stepper li{ list-style:none; display:flex; align-items:center; }
+  .step-dot{
+    width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:.72rem; font-weight:700; color:rgba(255,255,255,.55);
+    background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.16);
+    transition:all .3s; flex-shrink:0;
+  }
+  .step-item.active .step-dot{ background:#fff; color:#000; border-color:#fff; box-shadow:0 0 16px rgba(255,255,255,.35); }
+  .step-item.done .step-dot{ background:rgba(160,120,245,.45); color:#fff; border-color:rgba(180,145,250,.7); }
+  .step-item{ display:flex; align-items:center; gap:5px; background:none; border:none; padding:0; }
+  .step-item.done{ cursor:pointer; }
+  .step-name{ font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.5); display:none; }
+  .step-item.active .step-name{ color:rgba(255,255,255,.92); display:inline; }
+  .step-sep{ width:16px; height:1px; background:rgba(255,255,255,.18); flex-shrink:0; }
+  .step-sep.done{ background:rgba(180,145,250,.7); }
+  @media (min-width:768px){
+    .step-name{ display:inline; }
+    .step-sep{ width:28px; }
+  }
+
+  /* ===== Barra de contexto pegajosa (contador siempre visible) ===== */
+  .context-bar{
+    position:sticky; z-index:30;
+    background:rgba(5,5,8,.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .meter-track{ width:100%; height:6px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden; }
+  .meter-fill{ height:100%; border-radius:999px; transition:width .45s cubic-bezier(.16,1,.3,1), background-color .45s; }
+
+  /* ===== Toast ===== */
+  .toast-region{
+    position:fixed; left:50%; transform:translateX(-50%);
+    bottom:calc(96px + env(safe-area-inset-bottom)); z-index:60;
+    width:calc(100% - 32px); max-width:420px;
+    display:flex; flex-direction:column; gap:8px; pointer-events:none;
+  }
+  .toast{
+    background:rgba(28,22,44,.97); backdrop-filter:blur(14px);
+    border:1px solid rgba(180,145,250,.4);
+    border-radius:14px; padding:12px 16px; font-size:.85rem; color:#fff;
+    box-shadow:0 10px 34px rgba(0,0,0,.55);
+    display:flex; align-items:center; gap:10px;
+    animation:toastIn .25s cubic-bezier(.16,1,.3,1);
+  }
+  .toast.warn{ border-color:rgba(240,180,90,.55); background:rgba(48,34,18,.97); }
+  @keyframes toastIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:none; } }
+
+  /* ===== Botones ===== */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:48px; padding:0 26px; border-radius:9999px;
+    font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em;
+    cursor:pointer; border:1px solid transparent; transition:transform .2s, background .2s, opacity .2s;
+    text-decoration:none; white-space:nowrap;
+  }
+  .btn-primary{ background:#fff; color:#000; box-shadow:0 0 30px rgba(255,255,255,.2); }
+  .btn-primary:hover{ transform:scale(1.02); }
+  .btn-primary:active{ transform:scale(.98); }
+  /* Estado "no disponible aún": se mantiene enfocable y explica el motivo al pulsar
+     (mejor que `disabled`, que es invisible para lectores de pantalla) */
+  .btn[aria-disabled="true"]{ opacity:.42; box-shadow:none; }
+  .btn[aria-disabled="true"]:hover{ transform:none; }
+  .btn-ghost{ background:transparent; color:rgba(255,255,255,.82); border-color:rgba(255,255,255,.22); }
+  .btn-ghost:hover{ background:rgba(255,255,255,.08); color:#fff; }
+
+  /* ===== Barra de acción pegajosa ===== */
+  .action-bar{
+    position:sticky; bottom:0; z-index:35;
+    background:rgba(5,5,8,.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    border-top:1px solid rgba(255,255,255,.09);
+    padding:14px 20px calc(14px + env(safe-area-inset-bottom));
+  }
+  .action-inner{ max-width:56rem; margin:0 auto; display:flex; align-items:center; gap:12px; }
+  .action-inner .btn-primary{ flex:1; }
+  @media (min-width:640px){
+    .action-inner{ justify-content:flex-end; }
+    .action-inner .btn-primary{ flex:0 0 auto; min-width:200px; }
+  }
+
+  /* ===== Zona de subida ===== */
+  .dropzone{
+    display:block; border:1.5px dashed rgba(255,255,255,.3); border-radius:20px;
+    padding:36px 20px; text-align:center; transition:all .25s; cursor:pointer;
+  }
+  .dropzone:hover, .dropzone.drag{ border-color:rgba(196,166,255,.8); background:rgba(255,255,255,.04); }
+  .dropzone:focus-within{ border-color:#c4a6ff; background:rgba(255,255,255,.04); }
+
+  .thumb{ position:relative; aspect-ratio:1; border-radius:14px; overflow:hidden; background:rgba(255,255,255,.05); }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .thumb-remove{
+    position:absolute; top:4px; right:4px; width:32px; height:32px; border-radius:50%;
+    background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; cursor:pointer;
+    border:1px solid rgba(255,255,255,.3); color:#fff; transition:background .2s;
+  }
+  .thumb-remove:hover{ background:rgba(0,0,0,.92); }
+
+  /* ===== Tarjetas de estilo ===== */
+  .style-card{
+    position:relative; aspect-ratio:3/4; border-radius:16px; overflow:hidden; cursor:pointer;
+    border:2px solid transparent; transition:border-color .2s, box-shadow .2s; padding:0;
+    background:rgba(255,255,255,.05); display:block; width:100%;
+  }
+  .style-card img{ width:100%; height:100%; object-fit:cover; transition:transform .5s; display:block; }
+  .style-card:hover img{ transform:scale(1.06); }
+  .style-card[aria-pressed="true"]{ border-color:#fff; box-shadow:0 0 0 3px rgba(160,120,245,.5), 0 0 24px rgba(160,120,245,.35); }
+  .style-card .check{
+    position:absolute; top:8px; right:8px; width:28px; height:28px; border-radius:50%;
+    background:rgba(0,0,0,.5); border:1.5px solid rgba(255,255,255,.65); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; transition:all .2s;
+  }
+  .style-card[aria-pressed="true"] .check{ background:#fff; border-color:#fff; }
+  .style-card .check .material-symbols-outlined{ font-size:17px; color:transparent; transition:color .2s; }
+  .style-card[aria-pressed="true"] .check .material-symbols-outlined{ color:#000; }
+  .style-card .veil{ position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.7), transparent 55%); pointer-events:none; }
+  .style-card .cat-label{ position:absolute; bottom:8px; left:10px; font-size:9px; text-transform:uppercase; letter-spacing:.12em; color:rgba(255,255,255,.9); }
+  .style-card.locked{ opacity:.34; }
+  .style-card.locked:hover img{ transform:none; }
+
+  .chip{
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
+    min-height:40px; padding:0 18px; border-radius:999px; color:rgba(255,255,255,.75);
+    font-size:.85rem; transition:all .2s; cursor:pointer; white-space:nowrap;
+  }
+  .chip:hover{ background:rgba(255,255,255,.11); color:#fff; }
+  .chip[aria-pressed="true"]{ background:#fff; color:#000; border-color:#fff; font-weight:600; }
+
+  /* ===== Campos con etiqueta flotante (la etiqueta NO se pierde al escribir) ===== */
+  .field-wrap{ position:relative; }
+  .field{
+    width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.2);
+    border-radius:14px; padding:26px 16px 10px; color:#fff; font-size:1rem; min-height:60px;
+    transition:border-color .2s, background .2s;
+  }
+  .field::placeholder{ color:transparent; }
+  .field:hover{ border-color:rgba(255,255,255,.32); }
+  .field:focus{ outline:none; border-color:#c4a6ff; background:rgba(255,255,255,.09); box-shadow:0 0 0 3px rgba(196,166,255,.25); }
+  .field-wrap label{
+    position:absolute; left:16px; top:19px; font-size:1rem; color:rgba(255,255,255,.6);
+    pointer-events:none; transform-origin:left top; transition:transform .18s ease, color .18s ease;
+  }
+  .field:focus + label,
+  .field:not(:placeholder-shown) + label{
+    transform:translateY(-11px) scale(.74); color:rgba(255,255,255,.75);
+  }
+  .field[aria-invalid="true"]{ border-color:#f0908d; }
+  .field-error{ color:#ffb3b0; font-size:.8rem; margin-top:6px; display:flex; align-items:center; gap:6px; }
+
+  /* Enlace-botón: estilado aquí (no vía Tailwind) para que el contraste
+     no dependa de que el CDN haya cargado. */
+  .link-btn{
+    background:transparent; border:none; padding:0; cursor:pointer;
+    color:rgba(255,255,255,.9); font-size:.82rem; font-family:inherit;
+    text-decoration:underline; text-underline-offset:2px; min-height:32px;
+  }
+  .link-btn:hover{ color:#fff; }
+
+  .checkbox-input{
+    width:22px; height:22px; margin-top:2px; flex-shrink:0; cursor:pointer;
+    accent-color:#9d7cf0; border-radius:5px;
+  }
+
+  /* ===== Layout crítico (propio, no vía Tailwind) =====
+     Tailwind llega por CDN; si tarda o falla, la página seguiría siendo
+     legible pero sin rejillas. Estas reglas garantizan el layout esencial. */
+  .wrap{ width:100%; max-width:56rem; margin-inline:auto; }
+  .wrap-narrow{ width:100%; max-width:32rem; margin-inline:auto; }
+
+  .thumb-grid{
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px;
+    margin-top:20px; list-style:none;
+  }
+  .style-grid{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .chips-row{ display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; margin-bottom:20px; }
+
+  @media (min-width:640px){
+    .thumb-grid{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .style-grid{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+    .chips-row{ flex-wrap:wrap; justify-content:center; overflow-x:visible; }
+  }
+  @media (min-width:1024px){
+    .thumb-grid{ grid-template-columns:repeat(5,minmax(0,1fr)); }
+    .style-grid{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+  }
+
+  /* ===== Pasos ===== */
+  .wizard-step{ display:none; }
+  .wizard-step.active{ display:block; }
+
+  .heart-mark{ width:110px; height:110px; margin:0 auto; }
+  .heart-mark svg{ width:100%; height:100%; filter:drop-shadow(0 0 30px rgba(170,140,240,.45)); }
+  .heart-pulse{ animation:pulseHeart 3.2s ease-in-out infinite; }
+  @keyframes pulseHeart{ 0%,100%{ transform:scale(1); opacity:.92; } 50%{ transform:scale(1.045); opacity:1; } }
+</style>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Saltar al contenido</a>
+
+<div class="ambient-bg" aria-hidden="true">
+  <div class="glow-accent glow-1"></div>
+  <div class="glow-accent glow-2"></div>
+</div>
+
+<!-- ============================ CABECERA ============================ -->
+<header class="app-header">
+  <div class="wrap px-4 py-2.5 flex items-center gap-3">
+    <button type="button" id="btnHeaderBack" class="icon-btn" aria-label="Volver al paso anterior">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+    </button>
+    <nav class="flex-1 flex justify-center" aria-label="Progreso del pedido">
+      <ol id="stepper" class="stepper"></ol>
+    </nav>
+    <div class="w-11 flex-shrink-0" aria-hidden="true"></div>
+  </div>
+</header>
+
+<!-- ============ BARRA DE CONTEXTO: contador siempre a la vista ============ -->
+<div id="contextBar" class="context-bar" style="top:57px;" hidden>
+  <div class="wrap px-4 py-3">
+
+    <!-- Paso 1: medidor de calidad -->
+    <div id="ctxPhotos" hidden>
+      <div class="flex items-center justify-between gap-3 mb-2">
+        <p class="text-sm font-semibold t-primary">
+          <span id="meterLabel">Añade 3 fotos para empezar</span>
+          <span id="meterEmoji" class="ml-1" aria-hidden="true">🌱</span>
+        </p>
+        <p class="text-sm font-bold t-secondary tabular-nums whitespace-nowrap">
+          <span id="photoCount">0</span> / 10
+        </p>
+      </div>
+      <div class="meter-track" role="progressbar" id="meterBar"
+           aria-label="Calidad de la selección de fotos" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+        <div id="meterFill" class="meter-fill" style="width:3%; background:rgba(255,255,255,.3);"></div>
+      </div>
+      <p id="meterTip" class="t-muted text-xs mt-2 leading-relaxed">
+        Con 3 fotos podemos empezar. A partir de 5, el parecido mejora bastante.
+      </p>
+    </div>
+
+    <!-- Paso 2: contador de selección -->
+    <div id="ctxStyles" hidden>
+      <div class="flex items-center justify-between gap-3 mb-2">
+        <p class="text-sm font-semibold t-primary">
+          <span id="selCount">0</span> de <span id="selMax">5</span> elegidas
+        </p>
+        <p id="selRemaining" class="text-sm t-secondary whitespace-nowrap"></p>
+      </div>
+      <div class="meter-track" role="progressbar" id="selBar"
+           aria-label="Fotos seleccionadas" aria-valuemin="0" aria-valuenow="0">
+        <div id="selFill" class="meter-fill" style="width:0%; background:#a78bfa;"></div>
+      </div>
+      <p id="selHint" class="t-muted text-xs mt-2 leading-relaxed"></p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Región de avisos para lectores de pantalla + toasts visuales -->
+<div id="toastRegion" class="toast-region" role="status" aria-live="polite" aria-atomic="false"></div>
+
+<main id="main" class="px-4 pt-8 pb-10">
+  <div class="wrap">
+
+    <!-- ======================== PASO 1: FOTOS ======================== -->
+    <section id="step1" class="wizard-step active" aria-labelledby="h1Step1">
+      <div class="text-center mb-8 max-w-xl mx-auto">
+        <p class="text-[11px] uppercase tracking-[.2em] t-muted mb-3">Paso 1 de 4</p>
+        <h1 id="h1Step1" class="f-display font-light text-[1.6rem] sm:text-3xl md:text-4xl t-primary leading-tight tracking-tight mb-4 text-glow">
+          Empecemos por sus fotos
+        </h1>
+        <p class="t-secondary leading-relaxed text-[15px]">
+          Con 3 fotos ya podemos trabajar. Cuantas más nos dejes —de cerca, de lejos,
+          distintos ángulos y expresiones— más fiel será el parecido.
+        </p>
+      </div>
+
+      <label for="fileInput" class="dropzone" id="dropzone">
+        <span class="material-symbols-outlined text-4xl t-muted mb-2 block" aria-hidden="true">add_photo_alternate</span>
+        <span class="block t-secondary text-[15px] mb-1 font-medium">Arrastra las fotos o toca para elegirlas</span>
+        <span class="block t-muted text-xs">JPG o PNG · de 3 a 10 fotos</span>
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" multiple class="sr-only"/>
+      </label>
+
+      <h2 class="sr-only">Fotos añadidas</h2>
+      <ul id="thumbGrid" class="thumb-grid"></ul>
+
+      <p id="emptyPhotos" class="text-center t-muted text-sm mt-6">Aún no has añadido ninguna foto.</p>
+    </section>
+
+    <!-- ======================== PASO 2: ESTILOS ======================== -->
+    <section id="step2" class="wizard-step" aria-labelledby="h1Step2">
+      <div class="text-center mb-7 max-w-xl mx-auto">
+        <p class="text-[11px] uppercase tracking-[.2em] t-muted mb-3">Paso 2 de 4</p>
+        <h1 id="h1Step2" class="f-display font-light text-[1.6rem] sm:text-3xl md:text-4xl t-primary leading-tight tracking-tight mb-4 text-glow">
+          Elige tus estilos
+        </h1>
+        <p id="step2Sub" class="t-secondary leading-relaxed text-[15px]"></p>
+      </div>
+
+      <h2 class="sr-only">Filtrar por estilo</h2>
+      <div id="catChips" class="chips-row" role="group" aria-label="Filtrar por estilo"></div>
+
+      <h2 class="sr-only">Fotos disponibles</h2>
+      <div id="styleGrid" class="style-grid"></div>
+    </section>
+
+    <!-- ==================== PASO 3: DATOS Y PAGO ==================== -->
+    <section id="step3" class="wizard-step" aria-labelledby="h1Step3">
+      <div class="wrap-narrow">
+        <div class="text-center mb-7">
+          <p class="text-[11px] uppercase tracking-[.2em] t-muted mb-3">Paso 3 de 4</p>
+          <h1 id="h1Step3" class="f-display font-light text-[1.6rem] sm:text-3xl md:text-4xl t-primary leading-tight tracking-tight mb-4 text-glow">
+            Tus datos
+          </h1>
+          <p class="t-secondary leading-relaxed text-[15px]">
+            Los necesitamos para enviarte los retratos en cuanto estén listos.
+          </p>
+        </div>
+
+        <section class="glass rounded-2xl p-5 mb-6" aria-labelledby="summaryTitle">
+          <h2 id="summaryTitle" class="text-[11px] uppercase tracking-[.18em] t-muted mb-3">Resumen</h2>
+          <div class="flex items-center justify-between gap-3 mb-1.5">
+            <span id="summaryPack" class="t-primary text-[15px] font-medium"></span>
+            <span id="summaryPrice" class="f-display t-primary text-xl"></span>
+          </div>
+          <p id="summaryDetail" class="t-muted text-[13px]"></p>
+          <button type="button" id="btnEditSelection" class="link-btn mt-3">
+            Cambiar mi selección
+          </button>
+        </section>
+
+        <form id="orderForm" novalidate class="space-y-4">
+          <div class="field-wrap">
+            <input class="field" type="text" id="nombre" name="nombre" placeholder=" "
+                   autocomplete="given-name" required aria-describedby="errNombre"/>
+            <label for="nombre">Nombre</label>
+            <p id="errNombre" class="field-error" hidden>
+              <span class="material-symbols-outlined text-base" aria-hidden="true">error</span>
+              <span>Escribe tu nombre.</span>
+            </p>
+          </div>
+
+          <div class="field-wrap">
+            <input class="field" type="text" id="apellidos" name="apellidos" placeholder=" "
+                   autocomplete="family-name" required aria-describedby="errApellidos"/>
+            <label for="apellidos">Apellidos</label>
+            <p id="errApellidos" class="field-error" hidden>
+              <span class="material-symbols-outlined text-base" aria-hidden="true">error</span>
+              <span>Escribe tus apellidos.</span>
+            </p>
+          </div>
+
+          <div class="field-wrap">
+            <input class="field" type="email" id="email" name="email" placeholder=" "
+                   autocomplete="email" inputmode="email" required aria-describedby="emailHelp errEmail"/>
+            <label for="email">Correo electrónico</label>
+            <p id="emailHelp" class="t-muted text-xs mt-1.5">Aquí te enviaremos los retratos.</p>
+            <p id="errEmail" class="field-error" hidden>
+              <span class="material-symbols-outlined text-base" aria-hidden="true">error</span>
+              <span>Revisa el correo, parece que falta algo.</span>
+            </p>
+          </div>
+
+          <div class="pt-1">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input type="checkbox" id="consent" class="checkbox-input" aria-describedby="errConsent"/>
+              <span class="t-secondary text-[13px] leading-relaxed">
+                Confirmo que soy madre, padre o tutor/a legal de la criatura que aparece en las fotos
+                y autorizo a Petit Studio a usarlas únicamente para crear estos retratos.
+              </span>
+            </label>
+            <p id="errConsent" class="field-error mt-2" hidden>
+              <span class="material-symbols-outlined text-base" aria-hidden="true">error</span>
+              <span>Necesitamos esta confirmación para continuar.</span>
+            </p>
+          </div>
+
+          <p class="t-muted text-[12px] leading-relaxed pt-1">
+            Pago seguro con tarjeta. Tus fotos solo se usan para crear tus retratos y
+            puedes pedirnos que las borremos cuando quieras.
+          </p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ===================== PASO 4: CONFIRMACIÓN ===================== -->
+    <section id="step4" class="wizard-step" aria-labelledby="h1Step4">
+      <div class="text-center max-w-md mx-auto py-4">
+        <div class="heart-mark heart-pulse" aria-hidden="true">
+          <svg viewBox="0 0 100 100" fill="none">
+            <path d="M50 86C50 86 12 62 12 35C12 20 23 11 36 11C43 11 48 15 50 20C52 15 57 11 64 11C77 11 88 20 88 35C88 62 50 86 50 86Z"
+                  stroke="rgba(255,255,255,.85)" stroke-width="2.2" fill="rgba(190,160,250,.22)"/>
+          </svg>
+        </div>
+        <p class="text-[11px] uppercase tracking-[.2em] t-muted mt-7 mb-3">Paso 4 de 4 · Pedido confirmado</p>
+        <h1 id="h1Step4" class="f-display font-light text-[1.75rem] sm:text-4xl t-primary leading-tight tracking-tight mb-5 text-glow">
+          Gracias, <span id="successName">familia</span>
+        </h1>
+        <p class="t-secondary leading-relaxed mb-3">
+          Ya tenemos sus fotos. Empezamos a preparar los retratos ahora mismo.
+        </p>
+        <p class="t-secondary leading-relaxed">
+          En 24–48h te escribiremos a <strong id="successEmail" class="t-primary font-medium"></strong>
+          con el resultado y el enlace para descargarlos.
+        </p>
+        <p class="t-muted text-xs mt-7">
+          Referencia: <span id="successRef" class="tabular-nums"></span>
+        </p>
+        <a href="petit_studio_v3.html" class="btn btn-ghost mt-8">Volver a Petit Studio</a>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ==================== BARRA DE ACCIÓN PEGAJOSA ==================== -->
+<div id="actionBar" class="action-bar">
+  <div class="action-inner">
+    <button type="button" id="btnBack" class="btn btn-ghost">Atrás</button>
+    <button type="button" id="btnNext" class="btn btn-primary" aria-disabled="true" aria-describedby="nextHint">
+      Continuar
+    </button>
+  </div>
+  <p id="nextHint" class="sr-only">Añade al menos 3 fotos para continuar.</p>
+</div>
+
+<script>
+const CATALOG = __CATALOG_JSON__;
+
+const PACKS = {
+  basic: { label: 'Pack Basic', price: '9,90€', max: 5,  singleCategory: true  },
+  flex:  { label: 'Pack Flex',  price: '14,90€', max: 15, singleCategory: false }
+};
+
+const MIN_PHOTOS = 3;
+const MAX_PHOTOS = 10;
+
+const state = {
+  step: 1,
+  pack: 'basic',
+  photos: [],
+  selected: [],
+  lockedCategory: null
+};
+
+(function initPack(){
+  const p = new URLSearchParams(location.search).get('pack');
+  state.pack = (p === 'flex') ? 'flex' : 'basic';
+})();
+
+const $ = id => document.getElementById(id);
+
+// ===================== Toast =====================
+let toastTimer = null;
+function toast(message, variant){
+  const region = $('toastRegion');
+  region.innerHTML = '';
+  const el = document.createElement('div');
+  el.className = 'toast' + (variant === 'warn' ? ' warn' : '');
+  const icon = variant === 'warn' ? 'info' : 'check_circle';
+  el.innerHTML = `<span class="material-symbols-outlined" style="font-size:19px" aria-hidden="true">${icon}</span><span>${message}</span>`;
+  region.appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { region.innerHTML = ''; }, 3200);
+}
+
+// ===================== Stepper =====================
+const STEPS = ['Fotos', 'Estilos', 'Datos', 'Listo'];
+
+function renderStepper(){
+  const ol = $('stepper');
+  ol.innerHTML = '';
+  STEPS.forEach((name, i) => {
+    const n = i + 1;
+    const done = state.step > n;
+    const active = state.step === n;
+
+    if (i > 0){
+      const sep = document.createElement('li');
+      sep.className = 'step-sep' + (done || active ? ' done' : '');
+      sep.setAttribute('aria-hidden', 'true');
+      ol.appendChild(sep);
+    }
+
+    const li = document.createElement('li');
+    const tag = done ? 'button' : 'div';
+    const el = document.createElement(tag);
+    el.className = 'step-item' + (active ? ' active' : '') + (done ? ' done' : '');
+    el.innerHTML = `<span class="step-dot">${done ? '<span class="material-symbols-outlined" style="font-size:15px" aria-hidden="true">check</span>' : n}</span><span class="step-name">${name}</span>`;
+    if (done){
+      el.type = 'button';
+      el.setAttribute('aria-label', `Volver al paso ${n}: ${name}`);
+      el.addEventListener('click', () => goToStep(n));
+    }
+    if (active) el.setAttribute('aria-current', 'step');
+    li.appendChild(el);
+    ol.appendChild(li);
+  });
+}
+
+// ===================== Navegación =====================
+function goToStep(n){
+  document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+  $('step' + n).classList.add('active');
+  state.step = n;
+  renderStepper();
+  syncChrome();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const heading = $('h1Step' + n);
+  if (heading){ heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+}
+
+/* Muestra u oculta barra de contexto, botones y textos según el paso */
+function syncChrome(){
+  const bar = $('contextBar');
+  const showCtx = state.step === 1 || state.step === 2;
+  bar.hidden = !showCtx;
+  $('ctxPhotos').hidden = state.step !== 1;
+  $('ctxStyles').hidden = state.step !== 2;
+
+  // La barra de contexto se pega justo debajo de la cabecera
+  requestAnimationFrame(() => {
+    const h = document.querySelector('.app-header').offsetHeight;
+    bar.style.top = h + 'px';
+  });
+
+  $('actionBar').hidden = state.step === 4;
+  $('btnHeaderBack').hidden = state.step === 1 || state.step === 4;
+  $('btnBack').hidden = state.step === 1;
+
+  const next = $('btnNext');
+  if (state.step === 3){
+    next.textContent = `Pagar ${PACKS[state.pack].price}`;
+  } else {
+    next.textContent = 'Continuar';
+  }
+
+  if (state.step === 1) renderPhotoMeter();
+  if (state.step === 2){ renderCatalog(); }
+  if (state.step === 3){ renderSummary(); refreshNextState(); }
+}
+
+$('btnHeaderBack').addEventListener('click', () => { if (state.step > 1) goToStep(state.step - 1); });
+$('btnBack').addEventListener('click', () => { if (state.step > 1) goToStep(state.step - 1); });
+
+$('btnNext').addEventListener('click', () => {
+  if (state.step === 1){
+    if (state.photos.length < MIN_PHOTOS){
+      toast(`Añade ${MIN_PHOTOS - state.photos.length} foto${MIN_PHOTOS - state.photos.length === 1 ? '' : 's'} más para continuar.`, 'warn');
+      $('fileInput').focus();
+      return;
+    }
+    goToStep(2);
+  } else if (state.step === 2){
+    if (state.selected.length === 0){
+      toast('Elige al menos una foto para continuar.', 'warn');
+      return;
+    }
+    goToStep(3);
+  } else if (state.step === 3){
+    submitOrder();
+  }
+});
+
+function refreshNextState(){
+  const next = $('btnNext');
+  const hint = $('nextHint');
+  let blocked = false, reason = '';
+
+  if (state.step === 1){
+    blocked = state.photos.length < MIN_PHOTOS;
+    reason = blocked ? `Añade al menos ${MIN_PHOTOS} fotos para continuar.` : '';
+  } else if (state.step === 2){
+    blocked = state.selected.length === 0;
+    reason = blocked ? 'Elige al menos una foto para continuar.' : '';
+  }
+  next.setAttribute('aria-disabled', blocked ? 'true' : 'false');
+  hint.textContent = reason;
+}
+
+// ===================== PASO 1: fotos =====================
+const TIERS = [
+  { max: 2,  label:'Añade 3 fotos para empezar', emoji:'🌱', color:'#e08b7f', pct:c => 3 + c*8,
+    tip:'Con 3 fotos podemos empezar. A partir de 5, el parecido mejora bastante.' },
+  { max: 4,  label:'Suficiente para empezar',    emoji:'🙂', color:'#e0a25a', pct:c => 30 + (c-3)*10,
+    tip:'Añade alguna foto de más cerca o desde otro ángulo y ganaremos mucho detalle.' },
+  { max: 7,  label:'Muy buen material',          emoji:'😊', color:'#d3c95c', pct:c => 55 + (c-5)*8,
+    tip:'Vas bien. Con otra luz o expresión distinta, el resultado será aún más natural.' },
+  { max: 10, label:'Perfecto, así da gusto',     emoji:'🤩', color:'#7fd88f', pct:c => 85 + (c-8)*7.5,
+    tip:'Con esta variedad captaremos sus rasgos con muchísimo detalle.' }
+];
+
+function renderPhotoMeter(){
+  const c = state.photos.length;
+  const tier = TIERS.find(t => c <= t.max) || TIERS[TIERS.length - 1];
+  $('meterLabel').textContent = tier.label;
+  $('meterEmoji').textContent = tier.emoji;
+  $('meterTip').textContent = tier.tip;
+  $('photoCount').textContent = c;
+  const fill = $('meterFill');
+  fill.style.width = Math.min(100, Math.max(3, tier.pct(c))) + '%';
+  fill.style.background = tier.color;
+  $('meterBar').setAttribute('aria-valuenow', String(c));
+  $('meterBar').setAttribute('aria-valuetext', `${c} de ${MAX_PHOTOS} fotos. ${tier.label}`);
+  $('emptyPhotos').hidden = c > 0;
+  refreshNextState();
+}
+
+function renderThumbs(){
+  const grid = $('thumbGrid');
+  grid.innerHTML = '';
+  state.photos.forEach((p, i) => {
+    const li = document.createElement('li');
+    li.className = 'thumb';
+    li.innerHTML = `
+      <img src="${p.dataUrl}" alt="Foto ${i + 1} de ${state.photos.length}"/>
+      <button type="button" class="thumb-remove" data-i="${i}" aria-label="Quitar foto ${i + 1}">
+        <span class="material-symbols-outlined" style="font-size:17px" aria-hidden="true">close</span>
+      </button>`;
+    grid.appendChild(li);
+  });
+  grid.querySelectorAll('.thumb-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.photos.splice(Number(btn.dataset.i), 1);
+      renderThumbs();
+      renderPhotoMeter();
+      toast('Foto quitada.');
+    });
+  });
+}
+
+function addFiles(fileList){
+  const imgs = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+  if (!imgs.length) return;
+  const room = MAX_PHOTOS - state.photos.length;
+  if (room <= 0){
+    toast(`Ya tienes el máximo de ${MAX_PHOTOS} fotos.`, 'warn');
+    return;
+  }
+  const accepted = imgs.slice(0, room);
+  const rejected = imgs.length - accepted.length;
+  let pending = accepted.length;
+
+  accepted.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      state.photos.push({ dataUrl: e.target.result, name: file.name });
+      if (--pending === 0){
+        renderThumbs();
+        renderPhotoMeter();
+        const n = accepted.length;
+        toast(rejected > 0
+          ? `Añadidas ${n}. El máximo son ${MAX_PHOTOS} fotos.`
+          : `${n} foto${n === 1 ? '' : 's'} añadida${n === 1 ? '' : 's'} · ${state.photos.length} en total`,
+          rejected > 0 ? 'warn' : undefined);
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+const dz = $('dropzone');
+$('fileInput').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('drag'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('drag'); }));
+dz.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+
+// ===================== PASO 2: estilos =====================
+const CATEGORIES = [...new Set(CATALOG.map(i => i.category))];
+let activeCategory = CATEGORIES[0];
+
+function renderCatalog(){
+  const pack = PACKS[state.pack];
+  $('step2Sub').textContent = pack.singleCategory
+    ? `Con el Pack Basic eliges hasta ${pack.max} fotos de un mismo estilo.`
+    : `Con el Pack Flex combinas hasta ${pack.max} fotos entre todos los estilos.`;
+  $('selMax').textContent = pack.max;
+  $('selBar').setAttribute('aria-valuemax', String(pack.max));
+
+  const chips = $('catChips');
+  chips.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.textContent = cat;
+    b.setAttribute('aria-pressed', cat === activeCategory ? 'true' : 'false');
+    b.addEventListener('click', () => { activeCategory = cat; renderCatalog(); });
+    chips.appendChild(b);
+  });
+
+  const grid = $('styleGrid');
+  grid.innerHTML = '';
+  CATALOG.forEach((item, idx) => {
+    if (item.category !== activeCategory) return;
+    const selected = state.selected.includes(idx);
+    const locked = pack.singleCategory && state.lockedCategory && state.lockedCategory !== item.category;
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'style-card' + (locked ? ' locked' : '');
+    card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    card.dataset.idx = String(idx);
+    card.setAttribute('aria-label', `Estilo ${item.category}, foto ${idx + 1}`);
+    card.innerHTML = `
+      <img src="${item.src}" alt=""/>
+      <span class="veil" aria-hidden="true"></span>
+      <span class="cat-label">${item.category}</span>
+      <span class="check" aria-hidden="true"><span class="material-symbols-outlined">check</span></span>`;
+    card.addEventListener('click', () => toggleSelect(idx, card));
+    grid.appendChild(card);
+  });
+
+  renderSelectionBar();
+}
+
+/* Refresca el estado "bloqueado" de las tarjetas visibles sin reconstruir la
+   rejilla — reconstruirla perdería el foco del teclado y la posición de scroll. */
+function refreshLockedCards(){
+  const pack = PACKS[state.pack];
+  document.querySelectorAll('.style-card').forEach(card => {
+    const item = CATALOG[Number(card.dataset.idx)];
+    const locked = pack.singleCategory && state.lockedCategory && state.lockedCategory !== item.category;
+    card.classList.toggle('locked', !!locked);
+  });
+}
+
+function toggleSelect(idx, card){
+  const pack = PACKS[state.pack];
+  const item = CATALOG[idx];
+
+  if (state.selected.includes(idx)){
+    state.selected = state.selected.filter(i => i !== idx);
+    if (pack.singleCategory && state.selected.length === 0) state.lockedCategory = null;
+    card.setAttribute('aria-pressed', 'false');
+    refreshLockedCards();
+    renderSelectionBar();
+    const left = pack.max - state.selected.length;
+    toast(`Quitada · ${state.selected.length} de ${pack.max}, te quedan ${left}`);
+    return;
+  }
+
+  if (pack.singleCategory && state.lockedCategory && state.lockedCategory !== item.category){
+    toast(`Con el Pack Basic solo puedes elegir fotos de "${state.lockedCategory}". Quita las elegidas si quieres cambiar de estilo.`, 'warn');
+    return;
+  }
+  if (state.selected.length >= pack.max){
+    toast(`Ya tienes tus ${pack.max} fotos. Quita alguna si quieres cambiarla.`, 'warn');
+    return;
+  }
+
+  state.selected.push(idx);
+  if (pack.singleCategory) state.lockedCategory = item.category;
+  card.setAttribute('aria-pressed', 'true');
+  refreshLockedCards();
+  renderSelectionBar();
+
+  const left = pack.max - state.selected.length;
+  toast(left > 0
+    ? `Elegida · ${state.selected.length} de ${pack.max}, te quedan ${left}`
+    : `¡Ya están tus ${pack.max}! Puedes continuar.`);
+}
+
+function renderSelectionBar(){
+  const pack = PACKS[state.pack];
+  const n = state.selected.length;
+  const left = pack.max - n;
+  $('selCount').textContent = n;
+  $('selRemaining').textContent = left > 0 ? `Te quedan ${left}` : 'Completo';
+  $('selFill').style.width = (n / pack.max * 100) + '%';
+  $('selFill').style.background = left === 0 ? '#7fd88f' : '#a78bfa';
+  $('selBar').setAttribute('aria-valuenow', String(n));
+  $('selBar').setAttribute('aria-valuetext', `${n} de ${pack.max} elegidas`);
+  $('selHint').textContent = n === 0
+    ? 'Toca las fotos que quieras para añadirlas a tu pack.'
+    : (left > 0 ? 'Puedes continuar cuando quieras, o seguir eligiendo.' : 'Ya puedes continuar.');
+  refreshNextState();
+}
+
+// ===================== PASO 3: datos y pago =====================
+function renderSummary(){
+  const pack = PACKS[state.pack];
+  $('summaryPack').textContent = pack.label;
+  $('summaryPrice').textContent = pack.price;
+  const s = state.selected.length;
+  $('summaryDetail').textContent =
+    `${state.photos.length} fotos subidas · ${s} foto${s === 1 ? '' : 's'} elegida${s === 1 ? '' : 's'}`;
+}
+
+$('btnEditSelection').addEventListener('click', () => goToStep(2));
+
+function showError(id, show){
+  $(id).hidden = !show;
+}
+
+function validateForm(){
+  const nombre = $('nombre').value.trim();
+  const apellidos = $('apellidos').value.trim();
+  const email = $('email').value.trim();
+  const consent = $('consent').checked;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  showError('errNombre', !nombre);
+  showError('errApellidos', !apellidos);
+  showError('errEmail', !emailOk);
+  showError('errConsent', !consent);
+
+  $('nombre').setAttribute('aria-invalid', nombre ? 'false' : 'true');
+  $('apellidos').setAttribute('aria-invalid', apellidos ? 'false' : 'true');
+  $('email').setAttribute('aria-invalid', emailOk ? 'false' : 'true');
+
+  const firstBad = !nombre ? 'nombre' : !apellidos ? 'apellidos' : !emailOk ? 'email' : !consent ? 'consent' : null;
+  if (firstBad){
+    $(firstBad).focus();
+    toast('Revisa los datos marcados para continuar.', 'warn');
+    return null;
+  }
+  return { nombre, apellidos, email };
+}
+
+async function submitOrder(){
+  const data = validateForm();
+  if (!data) return;
+
+  const btn = $('btnNext');
+  const label = btn.textContent;
+  btn.setAttribute('aria-disabled', 'true');
+  btn.textContent = 'Procesando…';
+
+  // TODO Fase 2: sustituir por una redirección real a Stripe Checkout
+  // (sesión creada en una función serverless con el pack y el precio).
+  await new Promise(r => setTimeout(r, 1100));
+
+  $('successName').textContent = data.nombre;
+  $('successEmail').textContent = data.email;
+  $('successRef').textContent = 'PS-' + Date.now().toString().slice(-8);
+
+  btn.textContent = label;
+  btn.setAttribute('aria-disabled', 'false');
+  goToStep(4);
+}
+
+// Limpia el error de un campo en cuanto el usuario lo corrige
+['nombre','apellidos','email'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    const map = { nombre:'errNombre', apellidos:'errApellidos', email:'errEmail' };
+    if (!$(map[id]).hidden && $(id).value.trim()){
+      showError(map[id], false);
+      $(id).setAttribute('aria-invalid', 'false');
+    }
+  });
+});
+$('consent').addEventListener('change', () => { if ($('consent').checked) showError('errConsent', false); });
+
+// Enter en el formulario dispara el pago
+$('orderForm').addEventListener('submit', e => { e.preventDefault(); submitOrder(); });
+
+// ===================== Arranque =====================
+renderStepper();
+renderThumbs();
+syncChrome();
+window.addEventListener('resize', () => {
+  const h = document.querySelector('.app-header').offsetHeight;
+  $('contextBar').style.top = h + 'px';
+});
+</script>
+
+</body>
+</html>
