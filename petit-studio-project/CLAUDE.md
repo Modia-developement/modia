@@ -265,26 +265,52 @@ Falls back to "Esta opción" if the query param is missing/unrecognized.
 
 Form: Nombre, Apellidos, Email → on submit:
 1. Saves an entry to `localStorage['petitstudio_interesados']` (JSON array) —
-   **this is a per-browser local log only, not a shared/real database.** It's
-   a nice-to-have fallback, not the primary mechanism.
-2. Redirects to a `mailto:petitstudio@gmail.com` link pre-filled with subject
-   `Interés en: {producto}` and a body containing name, surname, email,
-   product, and timestamp — this is what actually gets the lead to Alba today
-   (requires the visitor to hit "send" in their own mail client).
-3. Swaps the form out for a confirmation state (`#formState` → `#successState`).
+   per-browser local log only, kept purely as a lightweight backup.
+2. POSTs the structured lead (`nombre`, `apellidos`, `email`, `producto`,
+   `producto_label`, `fecha`, `hora`) as JSON to a **Formspree** endpoint
+   (`FORMSPREE_ENDPOINT` constant near the bottom of the `<script>` block) —
+   this is the real, persistent, structured store. Each submission lands as a
+   row in the Formspree dashboard (one column per field) and triggers
+   Formspree's own email notification to Alba automatically.
+3. Only if that request fails (endpoint not configured yet, offline, etc.)
+   does it fall back to opening a `mailto:petitstudio@gmail.com` link
+   pre-filled with the same data, as a safety net so the lead isn't lost.
+4. Swaps the form out for a confirmation state (`#formState` → `#successState`)
+   either way.
+
+#### Formspree setup (required before this goes live)
+
+`FORMSPREE_ENDPOINT` in `proximamente.html` currently points at the placeholder
+`https://formspree.io/f/TU_FORM_ID` — submissions will silently fall back to
+mailto until this is replaced. To activate it:
+1. Create a free account at formspree.io (no card needed; free tier = 50
+   submissions/month, upgrade later if volume grows).
+2. Create a new form, copy its endpoint URL (`https://formspree.io/f/xxxxxxx`).
+3. Paste it into the `FORMSPREE_ENDPOINT` constant in `proximamente.html`.
+4. In the Formspree dashboard, confirm the destination email (petitstudio@gmail.com)
+   so notification emails aren't blocked.
+
+### Linked buttons → producto values
+
+Only the buttons that already point at `proximamente.html` feed the lead
+capture above: `regalo-digital`, `album-poster`, `imanes`, `regalo-impreso`
+(see Pricing table below). **Basic and Flex intentionally remain unlinked** —
+per Alba's decision, they stay a known gap (no checkout yet) rather than
+being routed into the waitlist/lead-capture flow. Don't link them without
+checking with her first.
 
 ### Known limitation — flagged to Alba, not yet resolved
 
-This is a static HTML file with **no backend**. It cannot actually auto-send
-email or write to a real database on its own — the `mailto:` + `localStorage`
-approach above is the best that's achievable without server infrastructure.
-Alba has been told this and may ask to wire up a real backend later. Good
-low-effort options if/when she wants to revisit it: **Formspree** (drop-in
-form endpoint, free tier, gives her a dashboard + email notification, no
-backend code needed), **Google Forms + Sheets** (zero cost, timestamp built
-in), or a small serverless function (Vercel/Cloudflare Workers) if she wants
-full control. Don't build a custom backend unless she explicitly asks for one
-— start with the no-code options.
+This is still a static HTML file with **no custom backend** — Formspree is a
+third-party no-code form endpoint, not a database Alba controls directly. If
+she outgrows the free tier or wants full control/export (e.g. into a real
+database, CRM, or Google Sheet), good next steps: Formspree's paid tiers add
+Google Sheets sync and higher volume; alternatively **Firebase Firestore**
+(free Spark tier) or a small serverless function (Vercel/Cloudflare Workers)
+if she wants full control — both would need her to create the
+project/credentials herself (requires her Google/cloud account), so revisit
+only if she explicitly asks. Don't build a custom backend unless she
+explicitly asks for one — start with the no-code options.
 
 ## Editing conventions used throughout this project
 

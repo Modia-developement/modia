@@ -108,7 +108,7 @@
         <input class="field" type="email" id="email" placeholder="Correo electrónico" required/>
         <button type="submit" class="btn-primary mt-2">Avisadme cuando esté disponible</button>
         <p class="f-body text-white/35 text-xs text-center leading-relaxed pt-1">
-          Al enviar se abrirá tu app de correo con el mensaje ya preparado para nosotros.
+          Tus datos se guardan de forma segura para avisarte en cuanto esté disponible.
           Si prefieres, escríbenos directamente a
           <a href="mailto:petitstudio@gmail.com" class="text-white/55 hover:text-white/80 underline underline-offset-2">petitstudio@gmail.com</a>.
         </p>
@@ -156,13 +156,25 @@ const productKey = params.get('producto') || '';
 const productLabel = PRODUCTS[productKey] || 'esta opción';
 document.getElementById('productLabel').textContent = productLabel;
 
+// Endpoint de Formspree — crea un formulario gratis en https://formspree.io
+// (sin tarjeta, 50 envíos/mes en el plan free) y sustituye TU_FORM_ID por el ID
+// que te da el dashboard tras crearlo. Cada envío llega como una fila con un
+// campo por columna (nombre, apellidos, email, producto, fecha, hora) y
+// Formspree también te manda un email de aviso automáticamente.
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/TU_FORM_ID';
+
 const form = document.getElementById('waitlistForm');
-form.addEventListener('submit', function(e){
+form.addEventListener('submit', async function(e){
   e.preventDefault();
   const nombre = document.getElementById('nombre').value.trim();
   const apellidos = document.getElementById('apellidos').value.trim();
   const email = document.getElementById('email').value.trim();
   if(!nombre || !apellidos || !email) return;
+
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const submitLabel = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Enviando...';
 
   const now = new Date();
   const fecha = now.toLocaleDateString('es-ES');
@@ -176,16 +188,35 @@ form.addEventListener('submit', function(e){
     localStorage.setItem('petitstudio_interesados', JSON.stringify(existing));
   }catch(err){}
 
-  // Abre el correo con los datos ya listos para enviar a petitstudio@gmail.com
-  const subject = encodeURIComponent('Interés en: ' + productLabel);
-  const body = encodeURIComponent(
-    'Producto de interés: ' + productLabel + '\n' +
-    'Nombre: ' + nombre + '\n' +
-    'Apellidos: ' + apellidos + '\n' +
-    'Email: ' + email + '\n' +
-    'Fecha: ' + fecha + ' ' + hora
-  );
-  window.location.href = 'mailto:petitstudio@gmail.com?subject=' + subject + '&body=' + body;
+  // Envío estructurado a Formspree — esto es lo que realmente guarda el lead
+  try{
+    const res = await fetch(FORMSPREE_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre, apellidos, email,
+        producto: productKey,
+        producto_label: productLabel,
+        fecha, hora
+      })
+    });
+    if(!res.ok) throw new Error('Formspree respondió ' + res.status);
+  }catch(err){
+    // Red de seguridad si el envío falla (p. ej. TU_FORM_ID sin configurar, o sin conexión):
+    // abre el correo con los datos ya listos para no perder el lead.
+    const subject = encodeURIComponent('Interés en: ' + productLabel);
+    const body = encodeURIComponent(
+      'Producto de interés: ' + productLabel + '\n' +
+      'Nombre: ' + nombre + '\n' +
+      'Apellidos: ' + apellidos + '\n' +
+      'Email: ' + email + '\n' +
+      'Fecha: ' + fecha + ' ' + hora
+    );
+    window.location.href = 'mailto:petitstudio@gmail.com?subject=' + subject + '&body=' + body;
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = submitLabel;
 
   // Muestra confirmación en la página
   document.getElementById('successName').textContent = nombre;
