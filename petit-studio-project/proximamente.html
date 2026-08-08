@@ -94,7 +94,6 @@
       </h1>
 
       <p class="reveal f-body text-white/60 leading-relaxed mb-1" style="transition-delay:.2s">
-        Te interesa: <span id="productLabel" class="text-white/90 font-medium">Esta opción</span>.
         Nos encanta que te encante — estamos terminando de darle forma para que llegue
         con el mismo cuidado que el resto de Petit Studio.
       </p>
@@ -129,7 +128,7 @@
       </h1>
       <p class="f-body text-white/60 leading-relaxed max-w-sm mx-auto">
         Te escribiremos a <span id="successEmail" class="text-white/85"></span> en cuanto
-        esté disponible: <span id="successProduct" class="text-white/85">esta opción</span>.
+        esté disponible.
         Gracias por tantísimo cariño mientras lo terminamos de coser.
       </p>
       <a href="petit_studio_v3.html" class="f-body text-xs uppercase tracking-[.15em] text-white/55 hover:text-white/85 transition-colors inline-block mt-10">
@@ -154,7 +153,6 @@ const PRODUCTS = {
 const params = new URLSearchParams(window.location.search);
 const productKey = params.get('producto') || '';
 const productLabel = PRODUCTS[productKey] || 'esta opción';
-document.getElementById('productLabel').textContent = productLabel;
 
 // Endpoint de Formspree — crea un formulario gratis en https://formspree.io
 // (sin tarjeta, 50 envíos/mes en el plan free) y sustituye TU_FORM_ID por el ID
@@ -221,7 +219,6 @@ form.addEventListener('submit', async function(e){
   // Muestra confirmación en la página
   document.getElementById('successName').textContent = nombre;
   document.getElementById('successEmail').textContent = email;
-  document.getElementById('successProduct').textContent = productLabel;
   document.getElementById('formState').style.display = 'none';
   document.getElementById('successState').style.display = 'block';
 });
