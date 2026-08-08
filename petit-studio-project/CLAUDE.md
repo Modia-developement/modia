@@ -19,6 +19,7 @@ Deployed on Vercel (free tier), account `modia.developement@gmail.com`:
 
 - `/` → serves `petit_studio_v3.html` (via the rewrite in `vercel.json`)
 - `/proximamente.html?producto=X` → the waitlist page, same as locally
+- `/pedido.html?pack=basic|flex` → the order wizard (Phase 1, see below)
 - Redeploy after changes with `npx vercel --prod --yes` from inside
   `petit-studio-project/` (requires being logged into the `modia.developement`
   Vercel account — `npx vercel whoami` to check, `npx vercel login` to switch).
@@ -29,6 +30,7 @@ Deployed on Vercel (free tier), account `modia.developement@gmail.com`:
 ```
 petit_studio_v3.html   ← main site (single file, self-contained, offline-capable)
 proximamente.html      ← "coming soon" waitlist page for features not yet live
+pedido.html             ← order wizard: upload → styles → data/payment → confirmation (Phase 1, mocked)
 vercel.json             ← rewrite so "/" serves petit_studio_v3.html on Vercel
 CLAUDE.md              ← this file
 ```
@@ -248,11 +250,12 @@ integration exists yet at all; that's a known gap, not a bug).
 
 ### Copy consistency rules (learned the hard way — check before touching timing claims)
 
-Delivery time is **24–48h**, not instant/same-day. This appears in three
-places that must stay consistent — if one changes, check the other two:
+Delivery time is **24–48h**, not instant/same-day. This appears in four
+places that must stay consistent — if one changes, check the other three:
 1. Step 3 of "Cómo funciona" ("Enamórate del resultado")
 2. "Sin Esperas" benefit card
 3. FAQ "¿Cuánto tarda la entrega?"
+4. `pedido.html` step 4 confirmation copy
 
 ## Page 2: `proximamente.html`
 
@@ -322,6 +325,113 @@ if she wants full control — both would need her to create the
 project/credentials herself (requires her Google/cloud account), so revisit
 only if she explicitly asks. Don't build a custom backend unless she
 explicitly asks for one — start with the no-code options.
+
+## Page 3: `pedido.html` — order wizard (Phase 1, in progress)
+
+Single-page, 4-step wizard for actually placing an order — this is what
+`petit_studio_v3.html`'s Basic (`?pack=basic`) and Flex (`?pack=flex`)
+"Seleccionar" buttons link to. Self-contained like the other pages (own
+copy of the design tokens), same dark/purple glass aesthetic, `.reveal`
+animation pattern, and a `stepper` UI showing progress (Fotos → Estilos →
+Datos y pago → Confirmación); clicking a completed step's dot jumps back.
+All state (`state` object near the bottom of the `<script>`) lives in
+memory for the session — nothing is persisted or sent anywhere yet.
+
+**Phase 1 status: frontend-only, payment and generation are mocked.**
+See "Roadmap" below for what's still needed before this is a real backend.
+
+### Step 1 — Fotos
+
+Drag-and-drop/file-picker upload (`accept="image/*" multiple`), 3–10
+photos, read client-side via `FileReader` as data URLs (nothing uploaded
+anywhere in Phase 1). A "password-strength"-style meter (`METER_TIERS` in
+the script) reacts to photo count with a label + emoji + color + progress
+bar + tip, in 4 tiers: 0–2 (blocked, red), 3–4 ("Floja", orange), 5–7
+("Media", amber), 8–10 ("¡Excelente!", green). "Continuar" is disabled
+below 3 photos.
+
+### Step 2 — Estilos
+
+Reuses the **same catalog images** already embedded in
+`petit_studio_v3.html`'s `#estilos` gallery (extracted via `re.sub` at
+build time — see "Regenerating the catalog" below), rendered as
+selectable cards (click to toggle, checkmark badge + purple ring when
+selected) filtered by the same category chips as the main site.
+
+Pack limits (`PACKS` object in the script):
+- **Basic** (`singleCategory: true`, `maxPhotos: 5`): the *first* style
+  picked locks `state.lockedCategory` — trying to select from a different
+  category shows an inline message instead of allowing it, until every
+  selection is removed.
+- **Flex** (`singleCategory: false`, `maxPhotos: 15`): any mix of
+  categories, up to 15 total.
+
+A sticky bar at the bottom always shows "`X` de `N` seleccionadas" plus
+how many remain — this is the friction-reduction Alba asked for so the
+client always knows where they stand while picking.
+
+### Step 3 — Datos y pago
+
+Nombre, apellidos, email, and a **required, unchecked-by-default**
+consent checkbox using inclusive guardian language ("madre, padre o
+tutor/a legal") — do not reword this into gendered "padre/madre" only,
+and do not pre-check it (real legal requirement, not just UX polish,
+since this concerns photos of a minor). An order summary card (pack,
+price, photos/styles count) is shown above the form so the client sees
+exactly what they're paying for before committing.
+
+**Payment is simulated** (`orderForm` submit handler): a 1.2s fake
+"Procesando pago…" delay, then straight to step 4. The code has a `TODO
+Fase 2` comment marking exactly where this needs to become a real Stripe
+Checkout redirect.
+
+### Step 4 — Confirmación
+
+Same heart-pulse SVG motif as `proximamente.html`, empathetic copy, and
+the 24–48h delivery promise (see Copy consistency rules — this is now a
+4th place that must stay in sync). Shows a mock order reference
+(`PS-<timestamp>`) — replace with a real order ID once there's a backend.
+
+### Regenerating the catalog
+
+`pedido.html`'s `CATALOG` array (JSON embedded near the bottom of the
+`<script>` block) is generated from `petit_studio_v3.html`'s gallery
+items, not maintained by hand. If the gallery in `petit_studio_v3.html`
+changes (new/removed style photos), regenerate `pedido.html` with a
+script that: regex-extracts every `data-category` + `alt` + base64 `src`
+from `#estilos` gallery items, JSON-encodes them, and rewrites the
+`CATALOG = ...` line in `pedido.html` — do not hand-edit the JSON (same
+reasoning as the base64 rule above: too large to eyeball safely).
+
+### Roadmap (Phase 2+, not started — needs Alba's accounts/credentials)
+
+Discussed with Alba; do not build ahead of her go-ahead on each piece:
+1. **Storage + database**: uploaded photos and order data need to persist
+   (to survive reloads, support regeneration, and feed the "360 reference
+   grid" step below) — recommended: Supabase (Postgres + Storage + Auth,
+   generous free tier) or Firebase, needs Alba's account.
+2. **Real payment**: replace the mocked submit with a Stripe Checkout
+   session created by a serverless function (Vercel Functions, since the
+   site's already hosted there) — needs Alba's Stripe account.
+3. **Image generation**: send the uploaded photos + selected style prompts
+   to Google's Gemini API — (a) first build a "360 reference grid" collage
+   of the baby's face/angles to keep identity consistent across styles,
+   (b) then generate one image per selected style using that reference +
+   the style's prompt (prompt library lives outside this repo, see "Style
+   catalog context" below) — needs a Google AI API key.
+4. **Admin review dashboard**: a private, authenticated panel (not part of
+   the public site) listing orders, prompts sent, generation status, and
+   the generated images, with actions to approve or regenerate/replace
+   individual images. Notify Alba when a batch finishes generating.
+5. **Delivery email**: on approval, email the client a secure,
+   expiring download link (needs a transactional email service — Resend
+   or similar; Formspree is only wired up for `proximamente.html` leads,
+   not this). Given these are photos of a minor, favor short link
+   expiry + an automatic deletion policy after delivery over indefinite
+   retention.
+
+Don't implement any of these without checking in — each needs Alba to
+create/hand over real credentials for a third-party service first.
 
 ## Editing conventions used throughout this project
 
