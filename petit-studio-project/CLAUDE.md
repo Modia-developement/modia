@@ -12,11 +12,24 @@ companies). Treats AI as a production tool, not the product itself — the brand
 curation, and creative direction are the differentiators. Target: ~€2,000/month
 once established. Prefers building/product work over cold outreach.
 
+## Live site
+
+Deployed on Vercel (free tier), account `modia.developement@gmail.com`:
+**https://petit-studio-project.vercel.app**
+
+- `/` → serves `petit_studio_v3.html` (via the rewrite in `vercel.json`)
+- `/proximamente.html?producto=X` → the waitlist page, same as locally
+- Redeploy after changes with `npx vercel --prod --yes` from inside
+  `petit-studio-project/` (requires being logged into the `modia.developement`
+  Vercel account — `npx vercel whoami` to check, `npx vercel login` to switch).
+- No custom domain connected yet — the `.vercel.app` URL is what's live.
+
 ## Files
 
 ```
 petit_studio_v3.html   ← main site (single file, self-contained, offline-capable)
 proximamente.html      ← "coming soon" waitlist page for features not yet live
+vercel.json             ← rewrite so "/" serves petit_studio_v3.html on Vercel
 CLAUDE.md              ← this file
 ```
 

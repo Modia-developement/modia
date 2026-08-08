@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/petit_studio_v3.html" }
+  ]
+}
