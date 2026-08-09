@@ -496,9 +496,12 @@
         <p class="t-secondary leading-relaxed mb-3">
           Ya tenemos sus fotos. Empezamos a preparar los retratos ahora mismo.
         </p>
+        <p class="t-secondary leading-relaxed mb-3">
+          Te hemos enviado a <strong id="successEmail" class="t-primary font-medium"></strong>
+          un correo con la confirmación de tu pedido.
+        </p>
         <p class="t-secondary leading-relaxed">
-          En 24–48h te escribiremos a <strong id="successEmail" class="t-primary font-medium"></strong>
-          con el resultado y el enlace para descargarlos.
+          En 24–48h te escribiremos ahí mismo con el resultado y el enlace para descargarlos.
         </p>
         <p class="t-muted text-xs mt-7">
           Referencia: <span id="successRef" class="tabular-nums"></span>
@@ -540,9 +543,11 @@ const state = {
   lockedCategory: null
 };
 
+// Cualquier clave de PACKS vale como ?pack=… — añadir un pack nuevo es tocar
+// solo PACKS, nada más en el flujo depende de sus nombres ni de sus tamaños.
 (function initPack(){
   const p = new URLSearchParams(location.search).get('pack');
-  state.pack = (p === 'flex') ? 'flex' : 'basic';
+  state.pack = Object.prototype.hasOwnProperty.call(PACKS, p) ? p : Object.keys(PACKS)[0];
 })();
 
 const $ = id => document.getElementById(id);
@@ -656,14 +661,16 @@ $('btnBack').addEventListener('click', () => { if (state.step > 1) goToStep(stat
 $('btnNext').addEventListener('click', () => {
   if (state.step === 1){
     if (state.photos.length < MIN_PHOTOS){
-      toast(`Añade ${MIN_PHOTOS - state.photos.length} foto${MIN_PHOTOS - state.photos.length === 1 ? '' : 's'} más para continuar.`, 'warn');
+      toast(`Añade mínimo ${MIN_PHOTOS} fotos para continuar.`, 'warn');
       $('fileInput').focus();
       return;
     }
     goToStep(2);
   } else if (state.step === 2){
-    if (state.selected.length === 0){
-      toast('Elige al menos una foto para continuar.', 'warn');
+    const max = PACKS[state.pack].max;
+    const left = max - state.selected.length;
+    if (left > 0){
+      toast(`Elige las ${max} fotos de tu pack para continuar. Te falta${left === 1 ? '' : 'n'} ${left}.`, 'warn');
       return;
     }
     goToStep(3);
@@ -679,10 +686,13 @@ function refreshNextState(){
 
   if (state.step === 1){
     blocked = state.photos.length < MIN_PHOTOS;
-    reason = blocked ? `Añade al menos ${MIN_PHOTOS} fotos para continuar.` : '';
+    reason = blocked ? `Añade mínimo ${MIN_PHOTOS} fotos para continuar.` : '';
   } else if (state.step === 2){
-    blocked = state.selected.length === 0;
-    reason = blocked ? 'Elige al menos una foto para continuar.' : '';
+    // Hay que completar el pack entero, sea cual sea su tamaño: todo sale de
+    // PACKS[...].max, así que añadir un pack nuevo no obliga a tocar esto.
+    const max = PACKS[state.pack].max;
+    blocked = state.selected.length < max;
+    reason = blocked ? `Elige las ${max} fotos de tu pack para continuar.` : '';
   }
   next.setAttribute('aria-disabled', blocked ? 'true' : 'false');
   hint.textContent = reason;
@@ -782,8 +792,8 @@ let activeCategory = CATEGORIES[0];
 function renderCatalog(){
   const pack = PACKS[state.pack];
   $('step2Sub').textContent = pack.singleCategory
-    ? `Con el Pack Basic eliges hasta ${pack.max} fotos de un mismo estilo.`
-    : `Con el Pack Flex combinas hasta ${pack.max} fotos entre todos los estilos.`;
+    ? `Con tu ${pack.label} eliges ${pack.max} fotos de un mismo estilo.`
+    : `Con tu ${pack.label} combinas ${pack.max} fotos entre todos los estilos.`;
   $('selMax').textContent = pack.max;
   $('selBar').setAttribute('aria-valuemax', String(pack.max));
 
@@ -829,11 +839,11 @@ function renderChips(){
     b.setAttribute('aria-pressed', cat === activeCategory ? 'true' : 'false');
     if (blocked){
       b.setAttribute('aria-disabled', 'true');
-      b.setAttribute('aria-label', `${cat}: no disponible, el Pack Basic incluye un solo estilo`);
+      b.setAttribute('aria-label', `${cat}: no disponible, tu ${pack.label} incluye un solo estilo`);
     }
     b.addEventListener('click', () => {
       if (blocked){
-        toast(`El Pack Basic incluye un solo estilo y ya has empezado con "${state.lockedCategory}". Quita esas fotos para cambiar.`, 'warn');
+        toast(`Tu ${pack.label} incluye un solo estilo y ya has empezado con "${state.lockedCategory}". Quita esas fotos para cambiar.`, 'warn');
         return;
       }
       activeCategory = cat;
@@ -887,8 +897,10 @@ function renderSelectionBar(){
   $('selBar').setAttribute('aria-valuenow', String(n));
   $('selBar').setAttribute('aria-valuetext', `${n} de ${pack.max} elegidas`);
   $('selHint').textContent = n === 0
-    ? 'Toca las fotos que quieras para añadirlas a tu pack.'
-    : (left > 0 ? 'Puedes continuar cuando quieras, o seguir eligiendo.' : 'Ya puedes continuar.');
+    ? `Toca las fotos que más te gusten hasta completar las ${pack.max} de tu pack.`
+    : (left > 0
+        ? `Te falta${left === 1 ? '' : 'n'} ${left} para completar tu pack.`
+        : '¡Pack completo! Ya puedes continuar.');
   refreshNextState();
 }
 

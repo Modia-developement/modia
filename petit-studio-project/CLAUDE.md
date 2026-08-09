@@ -450,6 +450,17 @@ Pack limits (`PACKS`):
   `state.lockedCategory`.
 - **Flex** — max 15, any mix of categories.
 
+**The client must fill the pack completely to continue** — 5 of 5, 15 of 15.
+A partial selection keeps the CTA blocked and explains what's missing.
+
+**`PACKS` is the single source of truth — adding a pack must not require
+touching the flow.** Its `max`, `label` and `singleCategory` drive the
+counters, hints, validation, toasts and step-2 subtitle; `?pack=` accepts any
+key in `PACKS` and falls back to the first one. Never hardcode a pack's name or
+size anywhere else (this was already wrong once: the step-2 subtitle said "Pack
+Flex" for every non-Basic pack). To add "premium", add one entry to `PACKS` —
+nothing else.
+
 **The Basic lock lives on the chips, not on the cards.** Once a style is
 locked, every other chip gets `aria-disabled`, a lock icon and an explanatory
 `aria-label`; clicking one shows a toast and does *not* switch category. Alba
@@ -474,7 +485,12 @@ asked for the original input look with a proper label above it.
 
 Inline validation: `aria-invalid` + `hidden` error nodes wired via
 `aria-describedby`, first invalid field gets focus, errors clear as the user
-types. Consent checkbox is **required and unchecked by default**, with
+types.
+
+Gate copy across the flow (the CTA is `aria-disabled`, so pressing it always
+explains itself rather than doing nothing): step 1 blocks below 3 photos with
+"Añade mínimo 3 fotos para continuar."; step 2 blocks until the pack is full
+with "Elige las N fotos de tu pack para continuar. Te faltan X.". Consent checkbox is **required and unchecked by default**, with
 inclusive wording ("madre, padre o tutor/a legal de la criatura") — do not
 reword to gendered-only, do not pre-check (legal requirement, photos of a
 minor).
@@ -493,6 +509,13 @@ Stripe Checkout redirect goes.
 Heart-pulse SVG, mock reference `PS-<timestamp>`, and the 24–48h promise (see
 Copy consistency rules — this is the 4th place it appears). Stepper and action
 bar are hidden; the only action is "Volver a Petit Studio".
+
+⚠️ The copy tells the client **"Te hemos enviado a {email} un correo con la
+confirmación de tu pedido"** — and in Phase 1 no such email is sent, because
+there is no backend. Alba asked for this wording; it is a promise that Phase 2
+has to make true. The confirmation email is part of roadmap item 5, and it must
+ship together with (or before) real payments — a client who pays and never gets
+the confirmation the screen promised is a support problem.
 
 ### Accessibility — verified, keep it that way
 
