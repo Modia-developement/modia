@@ -393,6 +393,15 @@ where they stand:
 | Region | Where | Contains |
 |---|---|---|
 | `.app-header` | sticky top | back arrow (icon only — no "Petit Studio" wordmark) + step dots |
+
+The header back arrow is shown on steps 1–3 and hidden on step 4 (the order is
+already placed; that screen has its own "Volver a Petit Studio" link). **On step
+1 it leaves the flow entirely** and returns to `petit_studio_v3.html` — if any
+photos have been added it confirms first, since nothing is persisted yet and
+leaving discards them. From step 2 onwards it just goes back one step. Its
+`aria-label` changes accordingly ("Salir y volver a Petit Studio" vs "Volver al
+paso anterior"). The bottom bar's "Atrás" stays hidden on step 1 so the primary
+CTA keeps the full width.
 | `#contextBar` | sticky, directly under the header (its `top` is set from the header's measured height on load/resize) | steps 1–2 only: the live counter |
 | `.action-bar` | sticky bottom, `env(safe-area-inset-bottom)`-aware | Atrás (ghost, left) + primary CTA (right; full-width on mobile) |
 

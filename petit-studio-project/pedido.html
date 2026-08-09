@@ -613,7 +613,11 @@ function syncChrome(){
   });
 
   $('actionBar').hidden = state.step === 4;
-  $('btnHeaderBack').hidden = state.step === 1 || state.step === 4;
+  // En el paso 1 la flecha sale del proceso y vuelve a la web principal;
+  // a partir del 2 retrocede un paso. En el 4 el pedido ya está hecho.
+  $('btnHeaderBack').hidden = state.step === 4;
+  $('btnHeaderBack').setAttribute('aria-label',
+    state.step === 1 ? 'Salir y volver a Petit Studio' : 'Volver al paso anterior');
   $('btnBack').hidden = state.step === 1;
 
   const next = $('btnNext');
@@ -628,7 +632,15 @@ function syncChrome(){
   if (state.step === 3){ renderSummary(); refreshNextState(); }
 }
 
-$('btnHeaderBack').addEventListener('click', () => { if (state.step > 1) goToStep(state.step - 1); });
+$('btnHeaderBack').addEventListener('click', () => {
+  if (state.step === 1){
+    // Nada se guarda todavía: avisamos antes de perder las fotos ya subidas.
+    if (state.photos.length && !confirm('Si sales ahora perderás las fotos que has subido. ¿Quieres salir?')) return;
+    window.location.href = 'petit_studio_v3.html';
+    return;
+  }
+  goToStep(state.step - 1);
+});
 $('btnBack').addEventListener('click', () => { if (state.step > 1) goToStep(state.step - 1); });
 
 $('btnNext').addEventListener('click', () => {
