@@ -248,23 +248,40 @@
      Mismo aspecto que el resto del sitio (padding, radio y tipografía
      originales); la etiqueta va encima y siempre visible, para que no
      desaparezca al escribir como pasaba con el placeholder-como-etiqueta. */
+  /* ⚠️ Los selectores llevan `input`/`textarea` a propósito. Tailwind llega por
+     CDN e inyecta su CSS DESPUÉS de este bloque, y su plugin `forms` estila los
+     campos con `[type='text']`, que tiene la MISMA especificidad que `.field`:
+     por orden de aparición ganaba Tailwind y los campos salían blancos con
+     texto blanco (invisibles) y sin redondear. `input.field` sube la
+     especificidad y devuelve el mando al estilo del sitio. No bajes esto a
+     `.field` a secas. */
   .field-label{
     display:block; font-size:.78rem; color:rgba(255,255,255,.72);
     margin-bottom:7px; letter-spacing:.01em;
   }
-  .field{
-    width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
+  input.field, textarea.field{
+    width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.22);
     border-radius:14px; padding:14px 16px; color:#fff; font-size:.95rem; min-height:52px;
-    font-family:'Manrope',system-ui,sans-serif;
+    font-family:'Manrope',system-ui,sans-serif; -webkit-appearance:none; appearance:none;
     transition:border-color .25s, background .25s, box-shadow .25s;
   }
-  .field::placeholder{ color:rgba(255,255,255,.38); }
-  .field:hover{ border-color:rgba(255,255,255,.28); }
-  .field:focus{
-    outline:none; border-color:rgba(190,160,250,.75); background:rgba(255,255,255,.09);
-    box-shadow:0 0 0 3px rgba(196,166,255,.22);
+  input.field::placeholder, textarea.field::placeholder{ color:rgba(255,255,255,.4); }
+  input.field:hover, textarea.field:hover{ border-color:rgba(255,255,255,.34); }
+  input.field:focus, textarea.field:focus{
+    outline:none; border-color:rgba(196,166,255,.85); background:rgba(255,255,255,.1);
+    box-shadow:0 0 0 3px rgba(196,166,255,.25);
   }
-  .field[aria-invalid="true"]{ border-color:#f0908d; }
+  /* Autocompletado del navegador: Chrome fuerza un fondo claro salvo que se
+     tape con una sombra interior y se pinte el texto con -webkit-text-fill-color. */
+  input.field:-webkit-autofill,
+  input.field:-webkit-autofill:hover,
+  input.field:-webkit-autofill:focus{
+    -webkit-text-fill-color:#fff;
+    -webkit-box-shadow:0 0 0 1000px #16131f inset;
+    caret-color:#fff;
+    transition:background-color 9999s ease-in-out 0s;
+  }
+  input.field[aria-invalid="true"]{ border-color:#f0908d; }
   .field-error{ color:#ffb3b0; font-size:.8rem; margin-top:6px; display:flex; align-items:center; gap:6px; }
 
   /* Enlace-botón: estilado aquí (no vía Tailwind) para que el contraste
@@ -276,10 +293,23 @@
   }
   .link-btn:hover{ color:#fff; }
 
-  .checkbox-input{
-    width:22px; height:22px; margin-top:2px; flex-shrink:0; cursor:pointer;
-    accent-color:#9d7cf0; border-radius:5px;
+  /* Mismo motivo que arriba: el plugin `forms` lo pinta blanco y azul Tailwind
+     al marcarlo, así que se estila entero aquí con especificidad suficiente. */
+  input.checkbox-input{
+    -webkit-appearance:none; appearance:none;
+    width:22px; height:22px; margin:2px 0 0; flex-shrink:0; cursor:pointer;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.3);
+    border-radius:6px; display:inline-grid; place-content:center;
+    transition:background .2s, border-color .2s;
   }
+  input.checkbox-input:hover{ border-color:rgba(255,255,255,.5); }
+  input.checkbox-input::before{
+    content:''; width:12px; height:12px; transform:scale(0);
+    transition:transform .15s ease-out; box-shadow:inset 1em 1em #fff;
+    clip-path:polygon(14% 44%,0 65%,50% 100%,100% 16%,80% 0%,43% 62%);
+  }
+  input.checkbox-input:checked{ background:#8b62e8; border-color:#8b62e8; }
+  input.checkbox-input:checked::before{ transform:scale(1); }
 
   /* ===== Layout crítico (propio, no vía Tailwind) =====
      Tailwind llega por CDN; si tarda o falla, la página seguiría siendo

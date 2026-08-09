@@ -490,6 +490,24 @@ keep the site's original input styling (14/16px padding, 14px radius, `.95rem`,
 as soon as you typed — and do not switch to a floating label either: Alba
 asked for the original input look with a proper label above it.
 
+⚠️ **The field selectors are `input.field` / `input.checkbox-input`, not
+`.field` / `.checkbox-input` — keep them that way.** Tailwind's `forms` plugin
+styles fields via `[type='text']`, which has the *same* specificity (0,1,0) as
+a class, and the CDN injects its stylesheet **after** the page's `<style>`
+block, so it won. In production that meant white boxes with white text —
+completely invisible — square corners, and a Tailwind-blue checkbox; locally it
+looked fine because the CDN is unreachable, so the bug only ever showed up on
+the deployed site. Anything targeting a form control needs the element
+qualifier (or has to beat `[type=…]` some other way). The checkbox is fully
+custom (`appearance:none` + a `clip-path` tick) for the same reason —
+`accent-color` does nothing once the plugin sets `appearance:none`. There is
+also a `:-webkit-autofill` override, since Chrome otherwise repaints the field
+with its own light background.
+
+When testing this file locally, remember the sandbox has no CDN access: to
+catch this class of bug, inject the `forms` plugin's base CSS into the page
+after load and re-check computed styles and contrast.
+
 Inline validation: `aria-invalid` + `hidden` error nodes wired via
 `aria-describedby`, first invalid field gets focus, errors clear as the user
 types.
