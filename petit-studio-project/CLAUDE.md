@@ -393,30 +393,42 @@ where they stand:
 | Region | Where | Contains |
 |---|---|---|
 | `.app-header` | sticky top | back arrow (icon only — no "Petit Studio" wordmark) + step dots |
-
-The header back arrow is shown on steps 1–3 and hidden on step 4 (the order is
-already placed; that screen has its own "Volver a Petit Studio" link). **On step
-1 it leaves the flow entirely** and returns to `petit_studio_v3.html` — if any
-photos have been added it confirms first, since nothing is persisted yet and
-leaving discards them. From step 2 onwards it just goes back one step. Its
-`aria-label` changes accordingly ("Salir y volver a Petit Studio" vs "Volver al
-paso anterior"). The bottom bar's "Atrás" stays hidden on step 1 so the primary
-CTA keeps the full width.
 | `#contextBar` | sticky, directly under the header (its `top` is set from the header's measured height on load/resize) | steps 1–2 only: the live counter |
 | `.action-bar` | sticky bottom, `env(safe-area-inset-bottom)`-aware | Atrás (ghost, left) + primary CTA (right; full-width on mobile) |
 
-The **counter is deliberately at the top, not the bottom** — Alba's explicit
-requirement: while picking photos or styles it must be visible without
-scrolling to the end. Step 1 shows the quality meter, step 2 shows
-"`X` de `N` elegidas · te quedan `Y`" plus a progress bar. Every
-selection/removal *also* fires a toast (`toast()`, `#toastRegion`,
-`role="status"`) with the running total, so the feedback is immediate.
+The header back arrow is shown on steps 1–3 and hidden on the final screen
+(the order is already placed; that screen has its own "Volver a Petit Studio"
+link). **On step 1 it leaves the flow entirely** and returns to
+`petit_studio_v3.html` — if any photos have been added it confirms first, since
+nothing is persisted yet and leaving discards them. From step 2 onwards it just
+goes back one step. Its `aria-label` changes accordingly. The bottom bar's
+"Atrás" stays hidden on step 1 so the primary CTA keeps the full width.
+
+The **counter is at the top, not the bottom** — Alba's explicit requirement:
+while picking photos or styles it must be visible without scrolling to the end.
+It is also deliberately **short (~41px)**: one line of text plus a 4px bar, so
+it rides along with the scroll without stealing height from the content. The
+tier tip and selection hint that change as you go are *not* in that bar — they
+live in the step body (`#meterTip`, `#selHint`) precisely to keep it thin. If
+you add anything to the context bar, keep it to one line.
+
+Every selection/removal also fires a toast (`toast()`, `#toastRegion`,
+`role="status"`) with the running total, so feedback is immediate.
+
+### Three steps, then a final screen
+
+`STEPS` has **three** entries (Fotos, Estilos, Datos) and the step-3 CTA reads
+**"Confirmar"**. The confirmation screen is `DONE_STEP` (4) — internally still
+`#step4`, but it is *not* a step: the stepper (`#stepperNav`) and the action bar
+are both hidden there. Don't reintroduce a "Paso X de Y" line inside any step
+either — the stepper already says it, and Alba had it removed as redundant.
 
 ### Step 1 — Fotos
 
-Drag-and-drop or file picker, 3–10 photos, read client-side as data URLs
-(nothing is uploaded in Phase 1). Quality meter (`TIERS`) reacts to photo
-count with label + emoji + colour + bar + tip:
+Title "Sube sus fotos", subtitle "3 fotos mínimo, con 5 capturamos los matices
+de ternura." Drag-and-drop or file picker, 3–10 photos, read client-side as data
+URLs (nothing is uploaded in Phase 1). Quality meter (`TIERS`) reacts to photo
+count with label + emoji + colour + bar, and a matching tip below the dropzone:
 
 | Fotos | Etiqueta | Color |
 |---|---|---|
@@ -434,22 +446,31 @@ announced as pressed/not pressed). Category chips are `<button aria-pressed>`
 too.
 
 Pack limits (`PACKS`):
-- **Basic** — `singleCategory: true`, max 5. The first pick locks
-  `state.lockedCategory`; other categories dim (`.locked`) and picking from
-  them shows a toast explaining why, instead of silently doing nothing.
+- **Basic** — `singleCategory: true`, max 5. The first pick sets
+  `state.lockedCategory`.
 - **Flex** — max 15, any mix of categories.
 
+**The Basic lock lives on the chips, not on the cards.** Once a style is
+locked, every other chip gets `aria-disabled`, a lock icon and an explanatory
+`aria-label`; clicking one shows a toast and does *not* switch category. Alba
+asked for this explicitly: previously you could browse into another style and
+only find out it was blocked by clicking a photo. Because the chips are the
+only way into another category, a card can never be un-selectable — so there is
+no "locked card" state, and `toggleSelect` only has to guard the max count.
+Removing every selection clears the lock and re-enables the chips.
+
 **Selecting does NOT re-render the grid.** `toggleSelect()` updates only the
-clicked card's `aria-pressed`, then `refreshLockedCards()` + the counter.
-Rebuilding the grid (as the first version did) threw away keyboard focus and
-scroll position on every click — don't reintroduce that.
+clicked card's `aria-pressed`, then `renderChips()` + the counter. Rebuilding
+the grid (as the first version did) threw away keyboard focus and scroll
+position on every click — don't reintroduce that.
 
-### Step 3 — Datos y pago
+### Step 3 — Datos
 
-**Floating labels** (`.field-wrap` + `.field:not(:placeholder-shown) + label`):
-the input's `placeholder` is a single space and the real `<label>` shrinks up
-out of the way on focus/fill. Placeholder-as-label loses the label the moment
-you type — that was a real bug here, don't go back to it.
+**Labels sit above the inputs** (`.field-label`), always visible. The fields
+keep the site's original input styling (14/16px padding, 14px radius, `.95rem`,
+52px min-height). Do not go back to placeholder-as-label — the label vanished
+as soon as you typed — and do not switch to a floating label either: Alba
+asked for the original input look with a proper label above it.
 
 Inline validation: `aria-invalid` + `hidden` error nodes wired via
 `aria-describedby`, first invalid field gets focus, errors clear as the user
@@ -458,16 +479,20 @@ inclusive wording ("madre, padre o tutor/a legal de la criatura") — do not
 reword to gendered-only, do not pre-check (legal requirement, photos of a
 minor).
 
-The CTA reads **"Pagar 9,90€" / "Pagar 14,90€"** — states the actual amount
-rather than a vague "Continuar", so nobody is surprised at the payment step.
-Payment itself is simulated (1.1s delay); the `TODO Fase 2` comment marks
-where the Stripe Checkout redirect goes.
+The summary card shows only the pack, its price and the number of chosen
+photos. It deliberately does **not** show the uploaded-photo count, and has no
+"change my pack/selection" link: switching pack changes the whole flow
+(different limits, possibly an already-locked style), so it is not offered here
+— going back through the stepper or the back arrow is the way.
 
-### Step 4 — Confirmación
+Payment is simulated (1.1s delay); the `TODO Fase 2` comment marks where the
+Stripe Checkout redirect goes.
+
+### Final screen — Confirmación
 
 Heart-pulse SVG, mock reference `PS-<timestamp>`, and the 24–48h promise (see
-Copy consistency rules — this is the 4th place it appears). The action bar is
-hidden here; the only action is "Volver a Petit Studio".
+Copy consistency rules — this is the 4th place it appears). Stepper and action
+bar are hidden; the only action is "Volver a Petit Studio".
 
 ### Accessibility — verified, keep it that way
 

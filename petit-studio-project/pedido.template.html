@@ -105,14 +105,26 @@
     .step-sep{ width:28px; }
   }
 
-  /* ===== Barra de contexto pegajosa (contador siempre visible) ===== */
+  /* ===== Barra de contexto pegajosa (contador siempre visible) =====
+     Deliberadamente baja: acompaña al scroll sin robar altura al contenido,
+     así que solo lleva una línea de texto y una barra fina. Los consejos
+     que cambian según el progreso van en el cuerpo del paso, no aquí. */
   .context-bar{
     position:sticky; z-index:30;
-    background:rgba(5,5,8,.9); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+    background:rgba(5,5,8,.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
     border-bottom:1px solid rgba(255,255,255,.08);
   }
-  .meter-track{ width:100%; height:6px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden; }
+  .ctx-inner{ width:100%; max-width:56rem; margin-inline:auto; padding:7px 16px 8px; }
+  .ctx-row{
+    display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+    margin-bottom:5px; font-size:.8rem; line-height:1.25;
+  }
+  .ctx-label{ font-weight:600; color:rgba(255,255,255,.95); }
+  .ctx-count{ color:rgba(255,255,255,.72); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .meter-track{ width:100%; height:4px; border-radius:999px; background:rgba(255,255,255,.13); overflow:hidden; }
   .meter-fill{ height:100%; border-radius:999px; transition:width .45s cubic-bezier(.16,1,.3,1), background-color .45s; }
+  /* Consejo dinámico, dentro del paso */
+  .ctx-tip{ color:rgba(255,255,255,.64); font-size:.8rem; line-height:1.5; }
 
   /* ===== Toast ===== */
   .toast-region{
@@ -200,8 +212,6 @@
   .style-card[aria-pressed="true"] .check .material-symbols-outlined{ color:#000; }
   .style-card .veil{ position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,.7), transparent 55%); pointer-events:none; }
   .style-card .cat-label{ position:absolute; bottom:8px; left:10px; font-size:9px; text-transform:uppercase; letter-spacing:.12em; color:rgba(255,255,255,.9); }
-  .style-card.locked{ opacity:.34; }
-  .style-card.locked:hover img{ transform:none; }
 
   .chip{
     background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14);
@@ -210,24 +220,32 @@
   }
   .chip:hover{ background:rgba(255,255,255,.11); color:#fff; }
   .chip[aria-pressed="true"]{ background:#fff; color:#000; border-color:#fff; font-weight:600; }
+  /* Pack Basic: una vez elegido un estilo, el resto queda cerrado. Se marca
+     aquí, en el filtro, para no dejar entrar a una categoría donde ninguna
+     foto se podría seleccionar. Sigue siendo enfocable y explica el motivo. */
+  .chip[aria-disabled="true"]{ opacity:.4; }
+  .chip[aria-disabled="true"]:hover{ background:rgba(255,255,255,.06); color:rgba(255,255,255,.75); }
+  .chip .lock-ico{ font-size:14px; vertical-align:-2px; margin-right:4px; }
 
-  /* ===== Campos con etiqueta flotante (la etiqueta NO se pierde al escribir) ===== */
-  .field-wrap{ position:relative; }
+  /* ===== Campos =====
+     Mismo aspecto que el resto del sitio (padding, radio y tipografía
+     originales); la etiqueta va encima y siempre visible, para que no
+     desaparezca al escribir como pasaba con el placeholder-como-etiqueta. */
+  .field-label{
+    display:block; font-size:.78rem; color:rgba(255,255,255,.72);
+    margin-bottom:7px; letter-spacing:.01em;
+  }
   .field{
-    width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.2);
-    border-radius:14px; padding:26px 16px 10px; color:#fff; font-size:1rem; min-height:60px;
-    transition:border-color .2s, background .2s;
+    width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.16);
+    border-radius:14px; padding:14px 16px; color:#fff; font-size:.95rem; min-height:52px;
+    font-family:'Manrope',system-ui,sans-serif;
+    transition:border-color .25s, background .25s, box-shadow .25s;
   }
-  .field::placeholder{ color:transparent; }
-  .field:hover{ border-color:rgba(255,255,255,.32); }
-  .field:focus{ outline:none; border-color:#c4a6ff; background:rgba(255,255,255,.09); box-shadow:0 0 0 3px rgba(196,166,255,.25); }
-  .field-wrap label{
-    position:absolute; left:16px; top:19px; font-size:1rem; color:rgba(255,255,255,.6);
-    pointer-events:none; transform-origin:left top; transition:transform .18s ease, color .18s ease;
-  }
-  .field:focus + label,
-  .field:not(:placeholder-shown) + label{
-    transform:translateY(-11px) scale(.74); color:rgba(255,255,255,.75);
+  .field::placeholder{ color:rgba(255,255,255,.38); }
+  .field:hover{ border-color:rgba(255,255,255,.28); }
+  .field:focus{
+    outline:none; border-color:rgba(190,160,250,.75); background:rgba(255,255,255,.09);
+    box-shadow:0 0 0 3px rgba(196,166,255,.22);
   }
   .field[aria-invalid="true"]{ border-color:#f0908d; }
   .field-error{ color:#ffb3b0; font-size:.8rem; margin-top:6px; display:flex; align-items:center; gap:6px; }
@@ -294,7 +312,7 @@
     <button type="button" id="btnHeaderBack" class="icon-btn" aria-label="Volver al paso anterior">
       <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
     </button>
-    <nav class="flex-1 flex justify-center" aria-label="Progreso del pedido">
+    <nav id="stepperNav" class="flex-1 flex justify-center" aria-label="Progreso del pedido">
       <ol id="stepper" class="stepper"></ol>
     </nav>
     <div class="w-11 flex-shrink-0" aria-hidden="true"></div>
@@ -303,41 +321,33 @@
 
 <!-- ============ BARRA DE CONTEXTO: contador siempre a la vista ============ -->
 <div id="contextBar" class="context-bar" style="top:57px;" hidden>
-  <div class="wrap px-4 py-3">
+  <div class="ctx-inner">
 
     <!-- Paso 1: medidor de calidad -->
     <div id="ctxPhotos" hidden>
-      <div class="flex items-center justify-between gap-3 mb-2">
-        <p class="text-sm font-semibold t-primary">
+      <p class="ctx-row">
+        <span class="ctx-label">
           <span id="meterLabel">Añade 3 fotos para empezar</span>
-          <span id="meterEmoji" class="ml-1" aria-hidden="true">🌱</span>
-        </p>
-        <p class="text-sm font-bold t-secondary tabular-nums whitespace-nowrap">
-          <span id="photoCount">0</span> / 10
-        </p>
-      </div>
+          <span id="meterEmoji" aria-hidden="true">🌱</span>
+        </span>
+        <span class="ctx-count"><span id="photoCount">0</span> / 10</span>
+      </p>
       <div class="meter-track" role="progressbar" id="meterBar"
            aria-label="Calidad de la selección de fotos" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
         <div id="meterFill" class="meter-fill" style="width:3%; background:rgba(255,255,255,.3);"></div>
       </div>
-      <p id="meterTip" class="t-muted text-xs mt-2 leading-relaxed">
-        Con 3 fotos podemos empezar. A partir de 5, el parecido mejora bastante.
-      </p>
     </div>
 
     <!-- Paso 2: contador de selección -->
     <div id="ctxStyles" hidden>
-      <div class="flex items-center justify-between gap-3 mb-2">
-        <p class="text-sm font-semibold t-primary">
-          <span id="selCount">0</span> de <span id="selMax">5</span> elegidas
-        </p>
-        <p id="selRemaining" class="text-sm t-secondary whitespace-nowrap"></p>
-      </div>
+      <p class="ctx-row">
+        <span class="ctx-label"><span id="selCount">0</span> de <span id="selMax">5</span> elegidas</span>
+        <span id="selRemaining" class="ctx-count"></span>
+      </p>
       <div class="meter-track" role="progressbar" id="selBar"
            aria-label="Fotos seleccionadas" aria-valuemin="0" aria-valuenow="0">
         <div id="selFill" class="meter-fill" style="width:0%; background:#a78bfa;"></div>
       </div>
-      <p id="selHint" class="t-muted text-xs mt-2 leading-relaxed"></p>
     </div>
 
   </div>
@@ -352,13 +362,11 @@
     <!-- ======================== PASO 1: FOTOS ======================== -->
     <section id="step1" class="wizard-step active" aria-labelledby="h1Step1">
       <div class="text-center mb-8 max-w-xl mx-auto">
-        <p class="text-[11px] uppercase tracking-[.2em] t-muted mb-3">Paso 1 de 4</p>
         <h1 id="h1Step1" class="f-display font-light text-[1.6rem] sm:text-3xl md:text-4xl t-primary leading-tight tracking-tight mb-4 text-glow">
-          Empecemos por sus fotos
+          Sube sus fotos
         </h1>
         <p class="t-secondary leading-relaxed text-[15px]">
-          Con 3 fotos ya podemos trabajar. Cuantas más nos dejes —de cerca, de lejos,
-          distintos ángulos y expresiones— más fiel será el parecido.
+          3 fotos mínimo, con 5 capturamos los matices de ternura.
         </p>
       </div>
 
@@ -369,6 +377,10 @@
         <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" multiple class="sr-only"/>
       </label>
 
+      <p id="meterTip" class="ctx-tip mt-4 text-center">
+        Con 3 fotos podemos empezar. A partir de 5, el parecido mejora bastante.
+      </p>
+
       <h2 class="sr-only">Fotos añadidas</h2>
       <ul id="thumbGrid" class="thumb-grid"></ul>
 
@@ -378,7 +390,6 @@
     <!-- ======================== PASO 2: ESTILOS ======================== -->
     <section id="step2" class="wizard-step" aria-labelledby="h1Step2">
       <div class="text-center mb-7 max-w-xl mx-auto">
-        <p class="text-[11px] uppercase tracking-[.2em] t-muted mb-3">Paso 2 de 4</p>
         <h1 id="h1Step2" class="f-display font-light text-[1.6rem] sm:text-3xl md:text-4xl t-primary leading-tight tracking-tight mb-4 text-glow">
           Elige tus estilos
         </h1>
@@ -388,6 +399,8 @@
       <h2 class="sr-only">Filtrar por estilo</h2>
       <div id="catChips" class="chips-row" role="group" aria-label="Filtrar por estilo"></div>
 
+      <p id="selHint" class="ctx-tip text-center mb-5"></p>
+
       <h2 class="sr-only">Fotos disponibles</h2>
       <div id="styleGrid" class="style-grid"></div>
     </section>
@@ -396,7 +409,6 @@
     <section id="step3" class="wizard-step" aria-labelledby="h1Step3">
       <div class="wrap-narrow">
         <div class="text-center mb-7">
-          <p class="text-[11px] uppercase tracking-[.2em] t-muted mb-3">Paso 3 de 4</p>
           <h1 id="h1Step3" class="f-display font-light text-[1.6rem] sm:text-3xl md:text-4xl t-primary leading-tight tracking-tight mb-4 text-glow">
             Tus datos
           </h1>
@@ -412,36 +424,33 @@
             <span id="summaryPrice" class="f-display t-primary text-xl"></span>
           </div>
           <p id="summaryDetail" class="t-muted text-[13px]"></p>
-          <button type="button" id="btnEditSelection" class="link-btn mt-3">
-            Cambiar mi selección
-          </button>
         </section>
 
         <form id="orderForm" novalidate class="space-y-4">
-          <div class="field-wrap">
-            <input class="field" type="text" id="nombre" name="nombre" placeholder=" "
+          <div>
+            <label class="field-label" for="nombre">Nombre</label>
+            <input class="field" type="text" id="nombre" name="nombre"
                    autocomplete="given-name" required aria-describedby="errNombre"/>
-            <label for="nombre">Nombre</label>
             <p id="errNombre" class="field-error" hidden>
               <span class="material-symbols-outlined text-base" aria-hidden="true">error</span>
               <span>Escribe tu nombre.</span>
             </p>
           </div>
 
-          <div class="field-wrap">
-            <input class="field" type="text" id="apellidos" name="apellidos" placeholder=" "
+          <div>
+            <label class="field-label" for="apellidos">Apellidos</label>
+            <input class="field" type="text" id="apellidos" name="apellidos"
                    autocomplete="family-name" required aria-describedby="errApellidos"/>
-            <label for="apellidos">Apellidos</label>
             <p id="errApellidos" class="field-error" hidden>
               <span class="material-symbols-outlined text-base" aria-hidden="true">error</span>
               <span>Escribe tus apellidos.</span>
             </p>
           </div>
 
-          <div class="field-wrap">
-            <input class="field" type="email" id="email" name="email" placeholder=" "
+          <div>
+            <label class="field-label" for="email">Correo electrónico</label>
+            <input class="field" type="email" id="email" name="email"
                    autocomplete="email" inputmode="email" required aria-describedby="emailHelp errEmail"/>
-            <label for="email">Correo electrónico</label>
             <p id="emailHelp" class="t-muted text-xs mt-1.5">Aquí te enviaremos los retratos.</p>
             <p id="errEmail" class="field-error" hidden>
               <span class="material-symbols-outlined text-base" aria-hidden="true">error</span>
@@ -480,7 +489,7 @@
                   stroke="rgba(255,255,255,.85)" stroke-width="2.2" fill="rgba(190,160,250,.22)"/>
           </svg>
         </div>
-        <p class="text-[11px] uppercase tracking-[.2em] t-muted mt-7 mb-3">Paso 4 de 4 · Pedido confirmado</p>
+        <p class="text-[11px] uppercase tracking-[.2em] t-muted mt-7 mb-3">Pedido confirmado</p>
         <h1 id="h1Step4" class="f-display font-light text-[1.75rem] sm:text-4xl t-primary leading-tight tracking-tight mb-5 text-glow">
           Gracias, <span id="successName">familia</span>
         </h1>
@@ -553,7 +562,10 @@ function toast(message, variant){
 }
 
 // ===================== Stepper =====================
-const STEPS = ['Fotos', 'Estilos', 'Datos', 'Listo'];
+// Tres pasos. La confirmación (DONE_STEP) es la pantalla final del proceso,
+// no un paso más: allí el stepper desaparece.
+const STEPS = ['Fotos', 'Estilos', 'Datos'];
+const DONE_STEP = 4;
 
 function renderStepper(){
   const ol = $('stepper');
@@ -612,20 +624,18 @@ function syncChrome(){
     bar.style.top = h + 'px';
   });
 
-  $('actionBar').hidden = state.step === 4;
+  const done = state.step === DONE_STEP;
+  $('actionBar').hidden = done;
+  // El stepper solo tiene sentido mientras el proceso está en marcha.
+  document.getElementById('stepperNav').hidden = done;
   // En el paso 1 la flecha sale del proceso y vuelve a la web principal;
-  // a partir del 2 retrocede un paso. En el 4 el pedido ya está hecho.
-  $('btnHeaderBack').hidden = state.step === 4;
+  // a partir del 2 retrocede un paso. Al confirmar ya no hay vuelta atrás.
+  $('btnHeaderBack').hidden = done;
   $('btnHeaderBack').setAttribute('aria-label',
     state.step === 1 ? 'Salir y volver a Petit Studio' : 'Volver al paso anterior');
   $('btnBack').hidden = state.step === 1;
 
-  const next = $('btnNext');
-  if (state.step === 3){
-    next.textContent = `Pagar ${PACKS[state.pack].price}`;
-  } else {
-    next.textContent = 'Continuar';
-  }
+  $('btnNext').textContent = state.step === 3 ? 'Confirmar' : 'Continuar';
 
   if (state.step === 1) renderPhotoMeter();
   if (state.step === 2){ renderCatalog(); }
@@ -777,28 +787,16 @@ function renderCatalog(){
   $('selMax').textContent = pack.max;
   $('selBar').setAttribute('aria-valuemax', String(pack.max));
 
-  const chips = $('catChips');
-  chips.innerHTML = '';
-  CATEGORIES.forEach(cat => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'chip';
-    b.textContent = cat;
-    b.setAttribute('aria-pressed', cat === activeCategory ? 'true' : 'false');
-    b.addEventListener('click', () => { activeCategory = cat; renderCatalog(); });
-    chips.appendChild(b);
-  });
+  renderChips();
 
   const grid = $('styleGrid');
   grid.innerHTML = '';
   CATALOG.forEach((item, idx) => {
     if (item.category !== activeCategory) return;
-    const selected = state.selected.includes(idx);
-    const locked = pack.singleCategory && state.lockedCategory && state.lockedCategory !== item.category;
     const card = document.createElement('button');
     card.type = 'button';
-    card.className = 'style-card' + (locked ? ' locked' : '');
-    card.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    card.className = 'style-card';
+    card.setAttribute('aria-pressed', state.selected.includes(idx) ? 'true' : 'false');
     card.dataset.idx = String(idx);
     card.setAttribute('aria-label', `Estilo ${item.category}, foto ${idx + 1}`);
     card.innerHTML = `
@@ -813,14 +811,35 @@ function renderCatalog(){
   renderSelectionBar();
 }
 
-/* Refresca el estado "bloqueado" de las tarjetas visibles sin reconstruir la
-   rejilla — reconstruirla perdería el foco del teclado y la posición de scroll. */
-function refreshLockedCards(){
+/* Los chips son la única puerta a otra categoría, así que el bloqueo del Pack
+   Basic vive aquí. Se redibujan solos al elegir/quitar fotos, sin tocar la
+   rejilla: reconstruirla perdería el foco del teclado y el scroll. */
+function renderChips(){
   const pack = PACKS[state.pack];
-  document.querySelectorAll('.style-card').forEach(card => {
-    const item = CATALOG[Number(card.dataset.idx)];
-    const locked = pack.singleCategory && state.lockedCategory && state.lockedCategory !== item.category;
-    card.classList.toggle('locked', !!locked);
+  const chips = $('catChips');
+  chips.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const blocked = pack.singleCategory && state.lockedCategory && state.lockedCategory !== cat;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip';
+    b.innerHTML = blocked
+      ? `<span class="material-symbols-outlined lock-ico" aria-hidden="true">lock</span>${cat}`
+      : cat;
+    b.setAttribute('aria-pressed', cat === activeCategory ? 'true' : 'false');
+    if (blocked){
+      b.setAttribute('aria-disabled', 'true');
+      b.setAttribute('aria-label', `${cat}: no disponible, el Pack Basic incluye un solo estilo`);
+    }
+    b.addEventListener('click', () => {
+      if (blocked){
+        toast(`El Pack Basic incluye un solo estilo y ya has empezado con "${state.lockedCategory}". Quita esas fotos para cambiar.`, 'warn');
+        return;
+      }
+      activeCategory = cat;
+      renderCatalog();
+    });
+    chips.appendChild(b);
   });
 }
 
@@ -832,26 +851,23 @@ function toggleSelect(idx, card){
     state.selected = state.selected.filter(i => i !== idx);
     if (pack.singleCategory && state.selected.length === 0) state.lockedCategory = null;
     card.setAttribute('aria-pressed', 'false');
-    refreshLockedCards();
+    renderChips();
     renderSelectionBar();
     const left = pack.max - state.selected.length;
     toast(`Quitada · ${state.selected.length} de ${pack.max}, te quedan ${left}`);
     return;
   }
 
-  if (pack.singleCategory && state.lockedCategory && state.lockedCategory !== item.category){
-    toast(`Con el Pack Basic solo puedes elegir fotos de "${state.lockedCategory}". Quita las elegidas si quieres cambiar de estilo.`, 'warn');
-    return;
-  }
   if (state.selected.length >= pack.max){
     toast(`Ya tienes tus ${pack.max} fotos. Quita alguna si quieres cambiarla.`, 'warn');
     return;
   }
 
   state.selected.push(idx);
+  // La primera elección fija el estilo del Pack Basic y cierra los demás chips.
   if (pack.singleCategory) state.lockedCategory = item.category;
   card.setAttribute('aria-pressed', 'true');
-  refreshLockedCards();
+  renderChips();
   renderSelectionBar();
 
   const left = pack.max - state.selected.length;
@@ -882,11 +898,8 @@ function renderSummary(){
   $('summaryPack').textContent = pack.label;
   $('summaryPrice').textContent = pack.price;
   const s = state.selected.length;
-  $('summaryDetail').textContent =
-    `${state.photos.length} fotos subidas · ${s} foto${s === 1 ? '' : 's'} elegida${s === 1 ? '' : 's'}`;
+  $('summaryDetail').textContent = `${s} foto${s === 1 ? '' : 's'} elegida${s === 1 ? '' : 's'}`;
 }
-
-$('btnEditSelection').addEventListener('click', () => goToStep(2));
 
 function showError(id, show){
   $(id).hidden = !show;
@@ -936,7 +949,7 @@ async function submitOrder(){
 
   btn.textContent = label;
   btn.setAttribute('aria-disabled', 'false');
-  goToStep(4);
+  goToStep(DONE_STEP);
 }
 
 // Limpia el error de un campo en cuanto el usuario lo corrige
