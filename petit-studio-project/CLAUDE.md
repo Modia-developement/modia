@@ -392,7 +392,14 @@ where they stand:
 
 | Region | Where | Contains |
 |---|---|---|
-| `.app-header` | sticky top | back arrow (icon only — no "Petit Studio" wordmark) + step dots |
+| `.app-header` | sticky top | back arrow (icon only — no "Petit Studio" wordmark) + stepper |
+
+The stepper stacks each numbered dot with its name underneath, and **all three
+names stay visible at every width**, down to 320px — not just the active one.
+Items align to the top and `.step-sep` is pushed down 13px (half a dot) so the
+connecting lines sit at dot height. The header's own flex layout lives in
+`.app-header-inner`, not in Tailwind classes, for the same CDN reason as the
+rest of the critical layout.
 | `#contextBar` | sticky, directly under the header (its `top` is set from the header's measured height on load/resize) | steps 1–2 only: the live counter |
 | `.action-bar` | sticky bottom, `env(safe-area-inset-bottom)`-aware | Atrás (ghost, left) + primary CTA (right; full-width on mobile) |
 

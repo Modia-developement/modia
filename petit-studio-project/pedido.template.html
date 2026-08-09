@@ -76,6 +76,12 @@
     border-bottom:1px solid rgba(255,255,255,.08);
     padding-top:env(safe-area-inset-top);
   }
+  .app-header-inner{
+    width:100%; max-width:56rem; margin-inline:auto;
+    display:flex; align-items:center; gap:12px; padding:8px 16px;
+  }
+  .app-header-inner > nav{ flex:1; display:flex; justify-content:center; }
+  .header-spacer{ width:44px; flex-shrink:0; }
   .icon-btn{
     width:44px; height:44px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
     color:rgba(255,255,255,.8); background:transparent; border:none; cursor:pointer; transition:background .2s, color .2s;
@@ -83,26 +89,37 @@
   }
   .icon-btn:hover{ background:rgba(255,255,255,.09); color:#fff; }
 
-  /* ===== Stepper ===== */
-  .stepper{ display:flex; align-items:center; gap:5px; list-style:none; margin:0; padding:0; }
-  .stepper li{ list-style:none; display:flex; align-items:center; }
+  /* ===== Stepper =====
+     Bola arriba, nombre debajo, y los tres nombres visibles siempre (también
+     en móvil): así se ve de un vistazo dónde estás y qué queda. Los items se
+     alinean por arriba y el separador se baja hasta el centro de las bolas. */
+  .stepper{ display:flex; align-items:flex-start; gap:4px; list-style:none; margin:0; padding:0; }
+  .stepper li{ list-style:none; display:flex; align-items:flex-start; }
   .step-dot{
     width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    font-size:.72rem; font-weight:700; color:rgba(255,255,255,.55);
+    font-size:.72rem; font-weight:700; color:rgba(255,255,255,.6);
     background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.16);
     transition:all .3s; flex-shrink:0;
   }
   .step-item.active .step-dot{ background:#fff; color:#000; border-color:#fff; box-shadow:0 0 16px rgba(255,255,255,.35); }
   .step-item.done .step-dot{ background:rgba(160,120,245,.45); color:#fff; border-color:rgba(180,145,250,.7); }
-  .step-item{ display:flex; align-items:center; gap:5px; background:none; border:none; padding:0; }
+  .step-item{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:none; border:none; padding:0; min-width:52px;
+  }
   .step-item.done{ cursor:pointer; }
-  .step-name{ font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.5); display:none; }
-  .step-item.active .step-name{ color:rgba(255,255,255,.92); display:inline; }
-  .step-sep{ width:16px; height:1px; background:rgba(255,255,255,.18); flex-shrink:0; }
+  .step-name{
+    font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; line-height:1;
+    color:rgba(255,255,255,.66); white-space:nowrap;
+  }
+  .step-item.active .step-name{ color:rgba(255,255,255,.95); font-weight:600; }
+  /* 13px = mitad de la bola, para que la línea quede a su altura */
+  .step-sep{ width:14px; height:1px; margin-top:13px; background:rgba(255,255,255,.18); flex-shrink:0; }
   .step-sep.done{ background:rgba(180,145,250,.7); }
   @media (min-width:768px){
-    .step-name{ display:inline; }
-    .step-sep{ width:28px; }
+    .step-name{ font-size:.7rem; letter-spacing:.1em; }
+    .step-sep{ width:30px; }
+    .step-item{ min-width:62px; }
   }
 
   /* ===== Barra de contexto pegajosa (contador siempre visible) =====
@@ -308,14 +325,14 @@
 
 <!-- ============================ CABECERA ============================ -->
 <header class="app-header">
-  <div class="wrap px-4 py-2.5 flex items-center gap-3">
+  <div class="app-header-inner">
     <button type="button" id="btnHeaderBack" class="icon-btn" aria-label="Volver al paso anterior">
       <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
     </button>
-    <nav id="stepperNav" class="flex-1 flex justify-center" aria-label="Progreso del pedido">
+    <nav id="stepperNav" aria-label="Progreso del pedido">
       <ol id="stepper" class="stepper"></ol>
     </nav>
-    <div class="w-11 flex-shrink-0" aria-hidden="true"></div>
+    <div class="header-spacer" aria-hidden="true"></div>
   </div>
 </header>
 
